@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User{
+  id        Int         @id @default(autoincrement())
+  fullName  String 
+  role      ROLE_ENUM        @default(CHILD)
+  birthdayDate       DateTime    
+  gender    GENDER_ENUM 
+  isBlocked Boolean     @default(false)
+  accountId Int
+  pin       String?     
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  account   Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  balance   UserBalance?
+  Children  ParentsChildren[]  @relation("child_relation")
+  Parents   ParentsChildren[]  @relation("parent_relation")
+  @@index([accountId])
+}
+
+model Account{
+  id        Int         @id @default(autoincrement())
+  email     String      @unique(map: "email") @db.VarChar(255)
+  password  String
+  accountRole ACCOUNT_ROLE_ENUM @default(PERSONAL)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  users     User[]
+}
+
+model UserBalance {
+  id        Int         @id @default(autoincrement())
+  amount    Decimal     @default(0.0)
+  creatorId Int         @unique(map: "creatorId")
+  currency  CURRENCY_ENUM    @default(SYP)
+  creator   User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([creatorId,currency])
+}
+
+model ParentsChildren {
+  id        Int         @id @default(autoincrement())
+  parentId  Int
+  childId   Int 
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Parent   User     @relation(fields: [parentId], references: [id], onDelete: Cascade,name: "parent_relation")
+  Child    User     @relation(fields: [childId], references: [id], onDelete: Cascade,name: "child_relation")
+  @@unique([parentId,childId])
+}
+
+enum ROLE_ENUM {
+  CHILD
+  PARENT
+  CREATOR
+  ADMIN
+}
+
+enum GENDER_ENUM {
+  MALE
+  FEMALE
+}
+
+enum CURRENCY_ENUM {
+  SYP
+  USD
+}
+
+enum ACCOUNT_ROLE_ENUM {
+  BUSINESS
+  PERSONAL
+}
