@@ -13,6 +13,7 @@ import { rolesGuard } from 'src/guards/roles.guard';
 import { Roles } from 'src/decorators/rolesGuard.decorator';
 import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { hasPIN } from 'src/guards/hasPin.guard';
+import { refreshToken } from './dto/refreshToken.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -61,5 +62,10 @@ export class AuthController {
     @GetUser('id') userId: number,
   ) {
     return this.authService.addFamily(dto, accountId, userId);
+  }
+  @Public()
+  @Post('refresh')
+  refreshToken(@Body() dto: refreshToken) {
+    return this.authService.refreshToken(dto);
   }
 }

@@ -16,6 +16,7 @@ import { Logout } from './dto/logout.dto';
 import { BusinessLogin } from './dto/businessLogin.dto';
 import { changePassword } from './dto/changePassword.dto';
 import { addFamily } from './dto/addFamily.dto';
+import { refreshToken } from './dto/refreshToken.dto';
 
 @Injectable()
 export class AuthService {
@@ -296,5 +297,31 @@ export class AuthService {
       });
     }
     return { message: 'Added Successfully And Share Your Account!', user };
+  }
+  async refreshToken(dto: refreshToken) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const data = await this.Jwt.decode(dto.refreshToken);
+    const payload = {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      accountId: data.accountId,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      userId: data.userId,
+    };
+    const accessSecret: string = this.config.get('SECRET_ACCESS_TOKEN')!;
+    const refreshSecret: string = this.config.get('SECRET_REFRESH_TOKEN')!;
+    const accessToken = await this.Jwt.signAsync(payload, {
+      secret: accessSecret,
+    });
+
+    await this.redisService.addToRedis(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      `token:${data.accountId}:${data.userId}`,
+      accessToken,
+    );
+
+    const refreshToken = await this.Jwt.signAsync(payload, {
+      secret: refreshSecret,
+    });
+    return { accessToken, refreshToken };
   }
 }
