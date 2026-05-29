@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   CanActivate,
   ExecutionContext,
@@ -30,7 +29,6 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const request = context.switchToHttp().getRequest();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const token = this.extractTokenFromHeader(request);
@@ -40,19 +38,16 @@ export class AuthGuard implements CanActivate {
     try {
       // 💡 Here the JWT secret key that's used for verifying the payload
       // is the key that was passed in the JwtModule
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const payload = await this.jwtService.verifyAsync(token);
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
       const myUser = await this.prismaService.user.findUnique({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         where: { id: payload.userId },
       });
       if (!myUser) {
         throw new NotFoundException('This User is not in our App!');
       }
       request['user'] = myUser;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       request['accountId'] = payload.accountId;
     } catch {
       throw new UnauthorizedException();

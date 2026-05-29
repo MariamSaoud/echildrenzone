@@ -14,9 +14,8 @@ import { MainRequestchooseAccount } from './dto/chooseAccount.dto';
 import { RedisService } from 'src/redis/redis.service';
 import { Logout } from './dto/logout.dto';
 import { BusinessLogin } from './dto/businessLogin.dto';
-import { changePassword } from './dto/changePassword.dto';
-import { addFamily } from './dto/addFamily.dto';
-import { refreshToken } from './dto/refreshToken.dto';
+import { ChangePassword } from './dto/changePassword.dto';
+import { RefreshToken } from './dto/refreshToken.dto';
 
 @Injectable()
 export class AuthService {
@@ -55,13 +54,11 @@ export class AuthService {
           fullName: dto.fullName,
           birthdayDate: new Date(dto.birthdayDate),
           gender: dto.gender,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           accountId: account.id,
           pin: dto.pin,
         },
       });
       await this.prismaService.userBalance.create({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         data: { creatorId: user.id },
       });
     }
@@ -79,16 +76,14 @@ export class AuthService {
           fullName: dto.fullName,
           birthdayDate: new Date(dto.birthdayDate),
           gender: dto.gender,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           accountId: account.id,
           pin: dto.pin,
         },
       });
     }
     const payload = {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       accountId: account.id,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
       userId: user.id,
     };
     const accessSecret: string = this.config.get('SECRET_ACCESS_TOKEN')!;
@@ -98,7 +93,6 @@ export class AuthService {
     });
 
     await this.redisService.addToRedis(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       `token:${account.id}:${user.id}`,
       accessToken,
     );
@@ -113,11 +107,11 @@ export class AuthService {
       where: { email: dto.email },
     });
     if (!existEmail) {
-      throw new NotFoundException('This Email is Not in our App!');
+      throw new NotFoundException('Invalid Data!');
     }
     const isValidP = await argon.verify(existEmail.password, dto.password);
     if (!isValidP) {
-      throw new BadRequestException('Wrong Password For This Email!');
+      throw new BadRequestException('Invalid Data!');
     }
     const usersInAccount = await this.prismaService.user.findMany({
       where: { accountId: existEmail.id },
@@ -139,36 +133,35 @@ export class AuthService {
     return { usersArr, token };
   }
   async chooseAccount(dto: MainRequestchooseAccount) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const verifyToken = await this.Jwt.decode(dto.token);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const verifyToken = await this.Jwt.verifyAsync(dto.token, {
+      secret: await this.config.get('SECRET_TEMP_LOGIN')!,
+    });
     const accountId = verifyToken.sub;
-    const userId = dto.account.id;
+    const userId = dto.id;
     const myDate = new Date();
     const minutesToAdd = 5;
     myDate.setMinutes(myDate.getMinutes() + minutesToAdd);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (verifyToken.timestamp < myDate) {
       throw new NotFoundException('Late Request for it!');
     }
-    if (dto.account.requiredPin) {
-      if (!dto.pin) {
-        throw new BadRequestException('PIN Is Required In This Case!');
-      } else {
-        const myPin = await this.prismaService.user.findFirst({
-          where: { id: dto.account.id },
-          select: { pin: true },
-        });
-        if (myPin?.pin) {
-          const verifyPIN = await argon.verify(myPin.pin, dto.pin);
-          if (!verifyPIN) {
-            throw new ForbiddenException('Wrong PIN!');
-          }
+    const myPin = await this.prismaService.user.findFirst({
+      where: { id: dto.id },
+      select: { pin: true },
+    });
+    if (!myPin) {
+      throw new NotFoundException('User Not Found!');
+    }
+    if (!dto.pin && myPin.pin) {
+      throw new BadRequestException('PIN Is Required In This Case!');
+    } else {
+      if (myPin?.pin) {
+        const verifyPIN = await argon.verify(myPin.pin, dto.pin);
+        if (!verifyPIN) {
+          throw new ForbiddenException('Wrong PIN!');
         }
       }
     }
     const payload = {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       accountId,
       userId,
     };
@@ -197,11 +190,11 @@ export class AuthService {
       where: { email: dto.email },
     });
     if (!existEmail) {
-      throw new NotFoundException('This Email is Not in our App!');
+      throw new NotFoundException('Invalid Data!');
     }
     const isValidP = await argon.verify(existEmail.password, dto.password);
     if (!isValidP) {
-      throw new BadRequestException('Wrong Password For This Email!');
+      throw new BadRequestException('Invalid Data!');
     }
     const businessUsers = await this.prismaService.user.findFirst({
       where: { accountId: existEmail.id },
@@ -209,15 +202,6 @@ export class AuthService {
     });
     if (!businessUsers) {
       throw new NotFoundException('User Not Found!');
-    }
-    if (businessUsers.pin) {
-      if (!dto.pin) {
-        throw new BadRequestException('PIN Is Required Here!');
-      }
-      const verifyPIN = await argon.verify(businessUsers.pin, dto.pin);
-      if (!verifyPIN) {
-        throw new ForbiddenException('Wrong PIN!');
-      }
     }
     const payload = {
       accountId: existEmail.id,
@@ -237,17 +221,28 @@ export class AuthService {
     });
     return { accessToken, refreshToken };
   }
-  async changePassword(dto: changePassword) {
+  async changePassword(id: string, dto: ChangePassword) {
     const existEmail = await this.prismaService.account.findUnique({
       where: { email: dto.email },
     });
     if (!existEmail) {
-      throw new NotFoundException('This Email is Not in our App!');
+      throw new NotFoundException('Invalid Data!');
     }
     const isValidP = await argon.verify(existEmail.password, dto.oldPassword);
     if (!isValidP) {
-      throw new BadRequestException('Wrong Old Password For This Email!');
+      throw new BadRequestException('Invalid Data!');
     }
+    if (id !== existEmail.id) {
+      throw new ForbiddenException('Invalid Data');
+    }
+    const similarPass = await argon.verify(
+      existEmail.password,
+      dto.newPassword,
+    );
+    if (similarPass) {
+      throw new BadRequestException('Invalid Data!'); //we shouldn't change the password to the same pass
+    }
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     await this.redisService.deletePattern(`token:${existEmail.id}*`);
     const hashPassword = await argon.hash(dto.newPassword);
     await this.prismaService.account.update({
@@ -256,55 +251,13 @@ export class AuthService {
     });
     return { message: 'Updated Successfully!' };
   }
-  async addAdmin(dto: Register) {
-    if (dto.pin) {
-      dto.pin = await argon.hash(dto.pin);
-    }
-    dto.password = await argon.hash(dto.password);
-    const existEmail = await this.prismaService.account.findUnique({
-      where: { email: dto.email },
+
+  async refreshToken(dto: RefreshToken) {
+    const data = await this.Jwt.verifyAsync(dto.refreshToken, {
+      secret: await this.config.get('SECRET_REFRESH_TOKEN')!,
     });
-    if (existEmail) {
-      throw new BadRequestException('This Email is in our App!');
-    }
-    const account = await this.prismaService.account.create({
-      data: {
-        email: dto.email,
-        password: dto.password,
-        accountRole: 'BUSINESS',
-      },
-    });
-    const user = await this.prismaService.user.create({
-      data: {
-        role: Role.CREATOR,
-        fullName: dto.fullName,
-        birthdayDate: new Date(dto.birthdayDate),
-        gender: dto.gender,
-        //@typescript-eslint/no-unsafe-member-access
-        accountId: account.id,
-        pin: dto.pin,
-      },
-    });
-    return { message: 'Admin Added Successfully!', user };
-  }
-  async addFamily(dto: addFamily, accountId: number, userId: number) {
-    const user = await this.prismaService.user.create({
-      data: { accountId, ...dto },
-    });
-    if (dto.role === Role.CHILD) {
-      await this.prismaService.parentsChildren.create({
-        data: { childId: user.id, parentId: userId },
-      });
-    }
-    return { message: 'Added Successfully And Share Your Account!', user };
-  }
-  async refreshToken(dto: refreshToken) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const data = await this.Jwt.decode(dto.refreshToken);
     const payload = {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       accountId: data.accountId,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       userId: data.userId,
     };
     const accessSecret: string = this.config.get('SECRET_ACCESS_TOKEN')!;
@@ -314,7 +267,6 @@ export class AuthService {
     });
 
     await this.redisService.addToRedis(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       `token:${data.accountId}:${data.userId}`,
       accessToken,
     );

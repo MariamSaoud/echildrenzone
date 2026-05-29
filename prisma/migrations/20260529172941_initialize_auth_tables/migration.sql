@@ -5,21 +5,21 @@ CREATE TYPE "ROLE_ENUM" AS ENUM ('CHILD', 'PARENT', 'CREATOR', 'ADMIN');
 CREATE TYPE "GENDER_ENUM" AS ENUM ('MALE', 'FEMALE');
 
 -- CreateEnum
-CREATE TYPE "CURRENCY_ENUM" AS ENUM ('SYP', 'USD');
+CREATE TYPE "CURRENCY_ENUM" AS ENUM ('USD');
 
 -- CreateEnum
 CREATE TYPE "ACCOUNT_ROLE_ENUM" AS ENUM ('BUSINESS', 'PERSONAL');
 
 -- CreateTable
 CREATE TABLE "User" (
-    "id" SERIAL NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "fullName" TEXT NOT NULL,
     "role" "ROLE_ENUM" NOT NULL DEFAULT 'CHILD',
     "birthdayDate" TIMESTAMP(3) NOT NULL,
     "gender" "GENDER_ENUM" NOT NULL,
     "isBlocked" BOOLEAN NOT NULL DEFAULT false,
-    "accountId" INTEGER NOT NULL,
-    "pin" VARCHAR(4),
+    "accountId" UUID NOT NULL,
+    "pin" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -28,7 +28,7 @@ CREATE TABLE "User" (
 
 -- CreateTable
 CREATE TABLE "Account" (
-    "id" SERIAL NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "email" VARCHAR(255) NOT NULL,
     "password" TEXT NOT NULL,
     "accountRole" "ACCOUNT_ROLE_ENUM" NOT NULL DEFAULT 'PERSONAL',
@@ -40,10 +40,10 @@ CREATE TABLE "Account" (
 
 -- CreateTable
 CREATE TABLE "UserBalance" (
-    "id" SERIAL NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "amount" DECIMAL(65,30) NOT NULL DEFAULT 0.0,
-    "creatorId" INTEGER NOT NULL,
-    "currency" "CURRENCY_ENUM" NOT NULL DEFAULT 'SYP',
+    "creatorId" UUID NOT NULL,
+    "currency" "CURRENCY_ENUM" NOT NULL DEFAULT 'USD',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -52,17 +52,14 @@ CREATE TABLE "UserBalance" (
 
 -- CreateTable
 CREATE TABLE "ParentsChildren" (
-    "id" SERIAL NOT NULL,
-    "parentId" INTEGER NOT NULL,
-    "childId" INTEGER NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "parentId" UUID NOT NULL,
+    "childId" UUID NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "ParentsChildren_pkey" PRIMARY KEY ("id")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "pin" ON "User"("pin");
 
 -- CreateIndex
 CREATE INDEX "User_accountId_idx" ON "User"("accountId");

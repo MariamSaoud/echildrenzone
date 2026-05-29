@@ -1,10 +1,10 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class Logout {
   @IsNotEmpty()
-  @IsNumber()
-  accountId: number;
+  @IsString()
+  accountId: string;
   @IsNotEmpty()
-  @IsNumber()
-  userId: number;
+  @IsString()
+  userId: string;
 }

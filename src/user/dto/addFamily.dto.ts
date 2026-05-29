@@ -5,10 +5,10 @@ import {
   IsString,
   Length,
 } from 'class-validator';
-import { gender, Role } from './register.dto';
+import { gender, Role } from '../../auth/dto/register.dto';
 import { Type } from 'class-transformer';
 
-export class addFamily {
+export class AddFamily {
   @IsNotEmpty()
   @IsString()
   fullName: string;

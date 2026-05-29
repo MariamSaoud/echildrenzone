@@ -7,7 +7,4 @@ export class BusinessLogin {
   @IsNotEmpty()
   @IsString()
   password: string;
-  @IsNotEmpty()
-  @IsString()
-  pin: string;
 }

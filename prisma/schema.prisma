@@ -13,13 +13,13 @@ datasource db {
 }
 
 model User{
-  id        Int         @id @default(autoincrement())
+  id        String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   fullName  String 
   role      ROLE_ENUM        @default(CHILD)
   birthdayDate       DateTime    
   gender    GENDER_ENUM 
   isBlocked Boolean     @default(false)
-  accountId Int
+  accountId String      @db.Uuid()
   pin       String?     
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
@@ -32,7 +32,7 @@ model User{
 }
 
 model Account{
-  id        Int         @id @default(autoincrement())
+  id        String      @id @default(dbgenerated("gen_random_uuid()"))  @db.Uuid()
   email     String      @unique(map: "email") @db.VarChar(255)
   password  String
   accountRole ACCOUNT_ROLE_ENUM @default(PERSONAL)
@@ -42,10 +42,10 @@ model Account{
 }
 
 model UserBalance {
-  id        Int         @id @default(autoincrement())
+  id        String      @id @default(dbgenerated("gen_random_uuid()"))  @db.Uuid() 
   amount    Decimal     @default(0.0)
-  creatorId Int         @unique(map: "creatorId")
-  currency  CURRENCY_ENUM    @default(SYP)
+  creatorId String         @unique(map: "creatorId") @db.Uuid()
+  currency  CURRENCY_ENUM    @default(USD)
   creator   User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
@@ -54,9 +54,9 @@ model UserBalance {
 }
 
 model ParentsChildren {
-  id        Int         @id @default(autoincrement())
-  parentId  Int
-  childId   Int 
+  id        String      @id @default(dbgenerated("gen_random_uuid()"))  @db.Uuid() 
+  parentId  String      @db.Uuid()
+  childId   String      @db.Uuid()
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   Parent   User     @relation(fields: [parentId], references: [id], onDelete: Cascade,name: "parent_relation")
@@ -77,7 +77,6 @@ enum GENDER_ENUM {
 }
 
 enum CURRENCY_ENUM {
-  SYP
   USD
 }
 

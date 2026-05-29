@@ -21,14 +21,12 @@ async function bootstrap() {
     const adminAccount = await prisma.account.create({
       data: { email: adminEmail, password: adminPass, accountRole: 'BUSINESS' },
     });
-    const pinHash = await argon.hash(configService.get('ADMIN_PIN')!);
     await prisma.user.create({
       data: {
         accountId: adminAccount.id,
         fullName: 'first-admin',
         birthdayDate: new Date('2002-11-02'),
         gender: 'FEMALE',
-        pin: pinHash,
         role: 'ADMIN',
       },
     });

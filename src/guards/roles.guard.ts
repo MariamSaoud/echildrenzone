@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 import { Role } from 'src/auth/dto/register.dto';
 import { ROLES_KEY } from 'src/decorators/rolesGuard.decorator';
 
-export class rolesGuard implements CanActivate {
+export class RolesGuard implements CanActivate {
   constructor(@Inject(Reflector) private reflector: Reflector) {} //Helper class providing Nest reflection capabilities.
   canActivate(
     context: ExecutionContext,
@@ -26,17 +26,17 @@ export class rolesGuard implements CanActivate {
     if (!Request) {
       return false;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,
     const user = Request.user;
     if (!user) {
       throw new NotFoundException('User Not Found!');
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line 
     if (!user.role) {
       return false;
     }
     for (let i = 0; i < requiredRoles.length; i++) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      // eslint-disable-next-line 
       if (Role[requiredRoles[i]] == user.role) {
         return true;
       }

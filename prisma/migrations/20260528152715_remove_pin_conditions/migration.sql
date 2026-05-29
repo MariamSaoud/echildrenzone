@@ -1,5 +1,0 @@
--- DropIndex
-DROP INDEX "pin";
-
--- AlterTable
-ALTER TABLE "User" ALTER COLUMN "pin" SET DATA TYPE TEXT;
