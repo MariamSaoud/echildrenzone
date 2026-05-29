@@ -13,7 +13,7 @@ datasource db {
 }
 
 model User{
-  id        String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  id        String         @id @default(dbgenerated("uuidv7()")) @db.Uuid()
   fullName  String 
   role      ROLE_ENUM        @default(CHILD)
   birthdayDate       DateTime    
@@ -32,7 +32,7 @@ model User{
 }
 
 model Account{
-  id        String      @id @default(dbgenerated("gen_random_uuid()"))  @db.Uuid()
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid()
   email     String      @unique(map: "email") @db.VarChar(255)
   password  String
   accountRole ACCOUNT_ROLE_ENUM @default(PERSONAL)
@@ -42,7 +42,7 @@ model Account{
 }
 
 model UserBalance {
-  id        String      @id @default(dbgenerated("gen_random_uuid()"))  @db.Uuid() 
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
   amount    Decimal     @default(0.0)
   creatorId String         @unique(map: "creatorId") @db.Uuid()
   currency  CURRENCY_ENUM    @default(USD)
@@ -54,7 +54,7 @@ model UserBalance {
 }
 
 model ParentsChildren {
-  id        String      @id @default(dbgenerated("gen_random_uuid()"))  @db.Uuid() 
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
   parentId  String      @db.Uuid()
   childId   String      @db.Uuid()
   createdAt DateTime    @default(now())
