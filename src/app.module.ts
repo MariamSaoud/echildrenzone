@@ -13,6 +13,8 @@ import { CategoryModule } from './category/category.module';
 import { ContentAgeModule } from './content-age/content-age.module';
 import { ReachedToContentModule } from './reached-to-content/reached-to-content.module';
 import { PlaylistModule } from './playlist/playlist.module';
+import { SubscriptionModule } from './subscription/subscription.module';
+import { BlockedChannelModule } from './blocked-channel/blocked-channel.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { PlaylistModule } from './playlist/playlist.module';
     ContentAgeModule,
     ReachedToContentModule,
     PlaylistModule,
+    SubscriptionModule,
+    BlockedChannelModule,
   ],
   controllers: [],
   providers: [
