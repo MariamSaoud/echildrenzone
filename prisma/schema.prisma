@@ -26,6 +26,13 @@ model User{
 
   account   Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
   balance   UserBalance?
+  Views     Views[]
+  Channel   Channel[]
+  Reactions Reaction[]
+  Comments  Comment[]
+  AddToFav  AddToFav[]
+  Subscriptions Subscription[]
+  BlockedChannels BlockedChannel[]
   Children  ParentsChildren[]  @relation("child_relation")
   Parents   ParentsChildren[]  @relation("parent_relation")
   @@index([accountId])
@@ -65,6 +72,185 @@ model ParentsChildren {
   @@unique([parentId,childId])
 }
 
+model ReachedToContent {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  paymentAmount Decimal @default(1.0)
+  type      REACHED_TYPE_ENUM 
+  currency  CURRENCY_ENUM    @default(USD)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  @@unique([type,currency])
+}
+
+
+model Category {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  type      CATEGORY_TYPE_ENUM @default(ENTERTAIMENT)
+  specificType String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Stories   Stories[]
+  Content   Content[]
+  Playlist  Playlist[]
+  @@unique([type,specificType])
+}
+
+model ContentAge {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  startAge  Int         
+  endAge    Int
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Content   Content[]
+  Playlist  Playlist[]
+  @@unique([startAge,endAge])
+}
+
+model Channel {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  name        String
+  description String?
+  creatorId   String    @db.Uuid()
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Stories   Stories[]
+  Content   Content[]
+  Playlist  Playlist[]
+  Subscriptions Subscription[]
+  BlockedChannels BlockedChannel[]
+  active    Boolean     @default(true)
+  creator   User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+}
+
+model Playlist {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  name        String
+  description String?
+  channelId   String    @db.Uuid()
+  categoryId  String    @db.Uuid()
+  contentAgeId   String @db.Uuid()
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Content   Content[]
+  Channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  Category  Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  ContentAge   ContentAge     @relation(fields: [contentAgeId], references: [id], onDelete: Cascade)
+}
+
+model Content {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  description String?
+  type      CONTENT_TYPE_ENUM @default(PHOTO)
+  url       String
+  status    CONTENT_STATUS_ENUM @default(PENDING)
+  rejectedReason String?
+  playlistId  String?          @db.Uuid()
+  channelId   String          @db.Uuid()
+  categoryId  String          @db.Uuid()
+  contentAgeId   String       @db.Uuid()
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Views     Views[]
+  Comments  Comment[]
+  AddToFav  AddToFav[]
+  Reactions Reaction[]
+  Content_TF_Questions Content_TF_Questions[]
+  Playlist   Playlist?     @relation(fields: [playlistId], references: [id], onDelete: SetNull)
+  Channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  Category   Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  ContentAge   ContentAge     @relation(fields: [contentAgeId], references: [id], onDelete: Cascade)
+}
+
+model Content_TF_Questions {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  question  String
+  answer    Boolean
+  contentId String      @db.Uuid()   
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Content   Content     @relation(fields: [contentId], references: [id], onDelete: Cascade)
+}
+
+model Stories {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  url       String
+  status    CONTENT_STATUS_ENUM @default(PENDING)
+  description String?
+  rejectedReason String?
+  channelId   String    @db.Uuid()
+  categoryId  String    @db.Uuid()
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  Category   Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  channelId   String    @db.Uuid()
+  childId     String    @db.Uuid()
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  Child    User     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  @@unique([childId,channelId])
+}
+
+model BlockedChannel {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  channelId   String    @db.Uuid()
+  childId     String    @db.Uuid()
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  Child    User     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  @@unique([childId,channelId])
+}
+
+model Reaction {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  childId     String    @db.Uuid()
+  contentId   String    @db.Uuid()
+  type        REACTION_TYPE_ENUM @default(LIKE)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Child       User     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  Content     Content     @relation(fields: [contentId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  childId     String    @db.Uuid()
+  contentId   String    @db.Uuid()
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Child       User     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  Content     Content     @relation(fields: [contentId], references: [id], onDelete: Cascade)
+}
+
+model AddToFav {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  childId     String    @db.Uuid()
+  contentId   String    @db.Uuid()
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Child       User     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  Content     Content     @relation(fields: [contentId], references: [id], onDelete: Cascade)
+} 
+
+model Views {
+  id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  childId     String    @db.Uuid()
+  contentId   String    @db.Uuid()
+  Type        VIEW_TYPE_ENUM  
+  WatchTime   String?
+  OriginTime  String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Child       User     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  Content     Content     @relation(fields: [contentId], references: [id], onDelete: Cascade)
+} 
+
 enum ROLE_ENUM {
   CHILD
   PARENT
@@ -85,3 +271,41 @@ enum ACCOUNT_ROLE_ENUM {
   BUSINESS
   PERSONAL
 }
+
+enum REACHED_TYPE_ENUM {
+  REACTION
+  COMMENT
+  ADDTOFAV
+  SUBSCRIBE
+  VIEW
+}
+
+enum CATEGORY_TYPE_ENUM {
+  ENTERTAIMENT
+  EDUCATIONAL
+}
+
+enum CONTENT_TYPE_ENUM {
+  PHOTO
+  VIDEO
+}
+
+enum CONTENT_STATUS_ENUM {
+  PENDING
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum REACTION_TYPE_ENUM {
+  LIKE
+  LOVE
+  FUNNY
+  INSIGHTFUL
+}
+
+enum VIEW_TYPE_ENUM {
+  PHOTO
+  VIDEO
+  PLAYLIST
+ }

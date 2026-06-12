@@ -8,6 +8,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { EmailModule } from './email-sender/email-sender.module';
+import { ChannelModule } from './channel/channel.module';
+import { CategoryModule } from './category/category.module';
+import { ContentAgeModule } from './content-age/content-age.module';
+import { ReachedToContentModule } from './reached-to-content/reached-to-content.module';
+import { PlaylistModule } from './playlist/playlist.module';
 
 @Module({
   imports: [
@@ -26,6 +31,11 @@ import { EmailModule } from './email-sender/email-sender.module';
     }),
     UserModule,
     EmailModule,
+    ChannelModule,
+    CategoryModule,
+    ContentAgeModule,
+    ReachedToContentModule,
+    PlaylistModule,
   ],
   controllers: [],
   providers: [
