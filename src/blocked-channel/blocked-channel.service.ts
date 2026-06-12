@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -6,6 +6,12 @@ export class BlockedChannelService {
   constructor(private prismaService: PrismaService) {}
   async toggleBlockedChannel(childId: string, channelId: string) {
     try {
+      const myChannel = await this.prismaService.channel.findUnique({
+        where: { id: channelId },
+      });
+      if (!myChannel) {
+        throw new NotFoundException('Not Found!');
+      }
       await this.prismaService.blockedChannel.delete({
         where: { childId_channelId: { channelId, childId } },
       });
