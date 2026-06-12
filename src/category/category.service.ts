@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AddCategory, updateCategory } from './dto/category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -23,6 +27,12 @@ export class CategoryService {
     return { data };
   }
   async deleteCategory(categoryId: string) {
+    const element = await this.prismaService.category.findUnique({
+      where: { id: categoryId },
+    });
+    if (!element) {
+      throw new NotFoundException('Not Found!');
+    }
     await this.prismaService.category.delete({ where: { id: categoryId } });
     return { message: 'Deleted Successfully!' };
   }

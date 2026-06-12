@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AddContentAge, UpdateContentAge } from './dto/contentAge.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -26,6 +30,12 @@ export class ContentAgeService {
     return { data };
   }
   async deleteContentAge(id: string) {
+    const element = await this.prismaService.contentAge.findUnique({
+      where: { id },
+    });
+    if (!element) {
+      throw new NotFoundException('Not Found!');
+    }
     await this.prismaService.contentAge.delete({ where: { id } });
     return { message: 'Deleted Successfully!' };
   }

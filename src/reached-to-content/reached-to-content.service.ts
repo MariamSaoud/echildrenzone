@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ReachedToContent, UpdateReachedToContent } from './dto/reached.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -25,6 +29,12 @@ export class ReachedToContentService {
     }
   }
   async deleteReachedTo(id: string) {
+    const element = await this.prismaService.reachedToContent.findUnique({
+      where: { id },
+    });
+    if (!element) {
+      throw new NotFoundException('Not Found!');
+    }
     await this.prismaService.reachedToContent.delete({ where: { id } });
     return { message: 'Deleted Successfully!' };
   }
