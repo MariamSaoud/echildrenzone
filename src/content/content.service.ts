@@ -81,6 +81,12 @@ export class ContentService {
         Playlist: true,
         ContentAge: true,
         Content_TF_Questions: true,
+        _count: {
+          select: {
+            Reactions: true,
+            Comments: true,
+          },
+        },
       },
     });
   }

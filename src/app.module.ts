@@ -17,6 +17,10 @@ import { SubscriptionModule } from './subscription/subscription.module';
 import { BlockedChannelModule } from './blocked-channel/blocked-channel.module';
 import { ContentModule } from './content/content.module';
 import { ContentTfQuestionsModule } from './content-tf-questions/content-tf-questions.module';
+import { ReactionModule } from './reaction/reaction.module';
+import { CommentModule } from './comment/comment.module';
+import { AddToFavModule } from './add-to-fav/add-to-fav.module';
+import { ViewsModule } from './views/views.module';
 
 @Module({
   imports: [
@@ -44,6 +48,10 @@ import { ContentTfQuestionsModule } from './content-tf-questions/content-tf-ques
     BlockedChannelModule,
     ContentModule,
     ContentTfQuestionsModule,
+    ReactionModule,
+    CommentModule,
+    AddToFavModule,
+    ViewsModule,
   ],
   controllers: [],
   providers: [

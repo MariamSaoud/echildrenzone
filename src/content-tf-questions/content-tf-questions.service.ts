@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AddQuestion, UpdateQuestion } from './dto/question.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -21,6 +25,12 @@ export class ContentTfQuestionsService {
     return { data };
   }
   async deleteQuestion(id: string) {
+    const element = await this.prismaService.content_TF_Questions.findUnique({
+      where: { id },
+    });
+    if (!element) {
+      throw new NotFoundException('Not Found!');
+    }
     await this.prismaService.content_TF_Questions.delete({ where: { id } });
     return { message: 'Deleted Successfully!' };
   }
