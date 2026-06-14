@@ -27,4 +27,9 @@ export class BlockedChannelService {
       }
     }
   }
+  async getBlockedChannel(childId: string) {
+    return await this.prismaService.blockedChannel.findMany({
+      where: { childId },
+    });
+  }
 }

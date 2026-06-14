@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { Role } from 'src/auth/dto/register.dto';
 import { GetUser } from 'src/decorators/getUser.decorator';
 import { Roles } from 'src/decorators/rolesGuard.decorator';
@@ -20,5 +20,9 @@ export class SubscriptionController {
       childId,
       channelId,
     );
+  }
+  @Get()
+  getSubscribedChannel(@GetUser('id') childId: string) {
+    return this.subscriptionService.getSubscribedChannel(childId);
   }
 }

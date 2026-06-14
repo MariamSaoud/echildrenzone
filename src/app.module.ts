@@ -15,6 +15,8 @@ import { ReachedToContentModule } from './reached-to-content/reached-to-content.
 import { PlaylistModule } from './playlist/playlist.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { BlockedChannelModule } from './blocked-channel/blocked-channel.module';
+import { ContentModule } from './content/content.module';
+import { ContentTfQuestionsModule } from './content-tf-questions/content-tf-questions.module';
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { BlockedChannelModule } from './blocked-channel/blocked-channel.module';
     PlaylistModule,
     SubscriptionModule,
     BlockedChannelModule,
+    ContentModule,
+    ContentTfQuestionsModule,
   ],
   controllers: [],
   providers: [

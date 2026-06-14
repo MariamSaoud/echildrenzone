@@ -2,10 +2,12 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Role } from 'src/auth/dto/register.dto';
@@ -51,5 +53,12 @@ export class ChannelController {
   deleteChannel(@GetUser('id') userId: string, @Param('id') id: string) {
     return this.channelService.deleteChannel(userId, id);
   }
-  // show how can we implement get! when we finish playlist and controller
+  @Get(['', ':id'])
+  getChannel(
+    @Param('id') id?: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.channelService.getChannel(id, page, limit);
+  }
 }

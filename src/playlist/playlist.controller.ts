@@ -2,9 +2,11 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Role } from 'src/auth/dto/register.dto';
@@ -35,5 +37,12 @@ export class PlaylistController {
   deletePlaylist(@Param('id') id: string) {
     return this.playlistService.deletePlaylist(id);
   }
-  //think about get playlist when we finish content
+  @Get(['', ':id'])
+  getPlaylists(
+    @Param('id') id?: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.playlistService.getPlaylists(id, page, limit);
+  }
 }

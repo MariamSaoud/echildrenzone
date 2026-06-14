@@ -27,4 +27,9 @@ export class SubscriptionService {
       }
     }
   }
+  async getSubscribedChannel(childId: string) {
+    return await this.prismaService.subscription.findMany({
+      where: { childId },
+    });
+  }
 }
