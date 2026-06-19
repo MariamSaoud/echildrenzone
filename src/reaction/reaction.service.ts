@@ -1,39 +1,55 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { AddReaction, UpdateReaction } from './dto/reaction.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserBalanceService } from 'src/user-balance/user-balance.service';
 
 @Injectable()
 export class ReactionService {
-  constructor(private prismaService: PrismaService) {}
-  async addReaction(id: string, dto: AddReaction) {
-    const data = await this.prismaService.reaction.create({
-      data: { ...dto, childId: id },
-    });
-    return { data };
-  }
-  async changeReaction(childId: string, id: string, dto: UpdateReaction) {
-    await this.isMe(id, childId);
-    const data = await this.prismaService.reaction.update({
-      where: { id },
-      data: { ...dto },
-    });
-    return { data };
-  }
-  async deleteReaction(childId: string, id: string) {
-    await this.isMe(id, childId);
-    const element = await this.prismaService.reaction.findUnique({
-      where: { id },
-    });
-    if (!element) {
-      throw new NotFoundException('Not Found!');
+  constructor(
+    private prismaService: PrismaService,
+    private userBalance: UserBalanceService,
+  ) {}
+  async toggleReaction(childId: string, contentId: string) {
+    const creatorData = await this.userBalance.findUserBalance(
+      contentId,
+      'REACTION',
+    );
+    try {
+      await this.prismaService.reaction.delete({
+        where: { childId_contentId: { childId, contentId } },
+      });
+      await this.prismaService.userBalance.update({
+        where: {
+          creatorId: creatorData.myBalance!.creatorId,
+          currency: creatorData.myBalance!.currency,
+        },
+        data: {
+          amount:
+            +creatorData.myBalance!.amount -
+            +creatorData.reached!.paymentAmount,
+        },
+      });
+      return { message: 'UnBlocked Successfully!' };
+    } catch (error) {
+      if (error.code === 'P2025') {
+        await this.prismaService.reaction.create({
+          data: { childId, contentId },
+        });
+        await this.prismaService.userBalance.update({
+          where: {
+            creatorId: creatorData.myBalance!.creatorId,
+            currency: creatorData.myBalance!.currency,
+          },
+          data: {
+            amount:
+              +creatorData.myBalance!.amount +
+              +creatorData.reached!.paymentAmount,
+          },
+        });
+        return { message: 'Blocked Successfully!' };
+      } else {
+        throw error;
+      }
     }
-    await this.prismaService.reaction.delete({ where: { id } });
-    return { message: 'Deleted Successfully!' };
   }
   async getReactionsForChild(childId: string, page: number, limit: number) {
     if (!limit || !page) {
@@ -72,13 +88,5 @@ export class ReactionService {
       data,
       pagination: { totalPages: Math.ceil(total / limit), page, limit },
     };
-  }
-  private async isMe(reactionId: string, userId: string) {
-    const reaction = await this.prismaService.reaction.findUnique({
-      where: { id: reactionId },
-    });
-    if (reaction?.childId !== userId) {
-      throw new ForbiddenException('Forbidden!');
-    }
   }
 }

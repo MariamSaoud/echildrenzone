@@ -42,12 +42,14 @@ export class ReachedToContentController {
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN)
-  @Get(['', ':id'])
-  getReachedTo(
-    @Param('id') id?: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-  ) {
-    return this.reachedToContentServier.getReachedTo(id, page, limit);
+  @Get()
+  getReachedTo(@Query('page') page: number, @Query('limit') limit: number) {
+    return this.reachedToContentServier.getReachedTo(page, limit);
+  }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.ADMIN)
+  @Get(':id')
+  getReachedToDetails(@Param('id') id: string) {
+    return this.reachedToContentServier.getReachedToDetails(id);
   }
 }

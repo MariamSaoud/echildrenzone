@@ -38,31 +38,27 @@ export class ReachedToContentService {
     await this.prismaService.reachedToContent.delete({ where: { id } });
     return { message: 'Deleted Successfully!' };
   }
-  async getReachedTo(
-    id: string | undefined,
-    page: number | undefined,
-    limit: number | undefined,
-  ) {
-    if (id) {
-      const data = await this.prismaService.reachedToContent.findUnique({
-        where: { id },
-      });
-      return { data };
+  async getReachedTo(page: number, limit: number) {
+    if (!page || !limit) {
+      throw new BadRequestException('Invalid Data!');
     } else {
-      if (!page || !limit) {
-        throw new BadRequestException('Invalid Data!');
-      } else {
-        const offset = (page - 1) * limit;
-        const data = await this.prismaService.reachedToContent.findMany({
-          take: limit,
-          skip: offset,
-        });
-        const total = await this.prismaService.reachedToContent.count();
-        return {
-          data,
-          pagination: { totalPages: Math.ceil(total / limit), page, limit },
-        };
-      }
+      const offset = (page - 1) * limit;
+      const data = await this.prismaService.reachedToContent.findMany({
+        take: limit,
+        skip: offset,
+      });
+      const total = await this.prismaService.reachedToContent.count();
+      return {
+        data,
+        pagination: { totalPages: Math.ceil(total / limit), page, limit },
+      };
     }
+  }
+
+  async getReachedToDetails(id: string) {
+    const data = await this.prismaService.reachedToContent.findUnique({
+      where: { id },
+    });
+    return { data };
   }
 }

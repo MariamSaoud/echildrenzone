@@ -21,6 +21,7 @@ import { ReactionModule } from './reaction/reaction.module';
 import { CommentModule } from './comment/comment.module';
 import { AddToFavModule } from './add-to-fav/add-to-fav.module';
 import { ViewsModule } from './views/views.module';
+import { UserBalanceModule } from './user-balance/user-balance.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { ViewsModule } from './views/views.module';
     CommentModule,
     AddToFavModule,
     ViewsModule,
+    UserBalanceModule,
   ],
   controllers: [],
   providers: [

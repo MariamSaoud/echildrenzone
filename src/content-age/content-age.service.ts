@@ -39,31 +39,26 @@ export class ContentAgeService {
     await this.prismaService.contentAge.delete({ where: { id } });
     return { message: 'Deleted Successfully!' };
   }
-  async getContentAges(
-    id: string | undefined,
-    page: number | undefined,
-    limit: number | undefined,
-  ) {
-    if (id) {
-      const data = await this.prismaService.contentAge.findUnique({
-        where: { id },
-      });
-      return { data };
+  async getContentAges(page: number, limit: number) {
+    if (!limit || !page) {
+      throw new BadRequestException('invalid data !');
     } else {
-      if (!limit || !page) {
-        throw new BadRequestException('invalid data !');
-      } else {
-        const offset = (page - 1) * limit;
-        const data = await this.prismaService.contentAge.findMany({
-          take: limit,
-          skip: offset,
-        });
-        const total = await this.prismaService.contentAge.count();
-        return {
-          data,
-          pagination: { totalPages: Math.ceil(total / limit), page, limit },
-        };
-      }
+      const offset = (page - 1) * limit;
+      const data = await this.prismaService.contentAge.findMany({
+        take: limit,
+        skip: offset,
+      });
+      const total = await this.prismaService.contentAge.count();
+      return {
+        data,
+        pagination: { totalPages: Math.ceil(total / limit), page, limit },
+      };
     }
+  }
+  async getContentAgeDetails(id: string) {
+    const data = await this.prismaService.contentAge.findUnique({
+      where: { id },
+    });
+    return { data };
   }
 }

@@ -42,12 +42,14 @@ export class ContentAgeController {
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN, Role.CREATOR)
-  @Get(['', ':id'])
-  getCategory(
-    @Param('id') contentAgeId?: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-  ) {
-    return this.contentAgeService.getContentAges(contentAgeId, page, limit);
+  @Get()
+  getCategory(@Query('page') page: number, @Query('limit') limit: number) {
+    return this.contentAgeService.getContentAges(page, limit);
+  }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Get(':id')
+  getCategoryDetails(@Param('id') contentAgeId: string) {
+    return this.contentAgeService.getContentAgeDetails(contentAgeId);
   }
 }

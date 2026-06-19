@@ -6,13 +6,31 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddComment, UpdateComment } from './dto/comment.dto';
+import { UserBalanceService } from 'src/user-balance/user-balance.service';
 
 @Injectable()
 export class CommentService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private userBalance: UserBalanceService,
+  ) {}
   async addComment(id: string, dto: AddComment) {
+    const creatorData = await this.userBalance.findUserBalance(
+      dto.contentId,
+      'COMMENT',
+    );
     const data = await this.prismaService.comment.create({
       data: { ...dto, childId: id },
+    });
+    await this.prismaService.userBalance.update({
+      where: {
+        creatorId: creatorData.myBalance!.creatorId,
+        currency: creatorData.myBalance!.currency,
+      },
+      data: {
+        amount:
+          +creatorData.myBalance!.amount + +creatorData.reached!.paymentAmount,
+      },
     });
     return { data };
   }
@@ -33,6 +51,20 @@ export class CommentService {
       throw new NotFoundException('Not Found!');
     }
     await this.prismaService.comment.delete({ where: { id } });
+    const creatorData = await this.userBalance.findUserBalance(
+      element.contentId,
+      'COMMENT',
+    );
+    await this.prismaService.userBalance.update({
+      where: {
+        creatorId: creatorData.myBalance!.creatorId,
+        currency: creatorData.myBalance!.currency,
+      },
+      data: {
+        amount:
+          +creatorData.myBalance!.amount - +creatorData.reached!.paymentAmount,
+      },
+    });
     return { message: 'Deleted Successfully!' };
   }
   async getCommentsForChild(childId: string, page: number, limit: number) {

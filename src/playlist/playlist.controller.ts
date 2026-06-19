@@ -37,12 +37,12 @@ export class PlaylistController {
   deletePlaylist(@Param('id') id: string) {
     return this.playlistService.deletePlaylist(id);
   }
-  @Get(['', ':id'])
-  getPlaylists(
-    @Param('id') id?: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-  ) {
-    return this.playlistService.getPlaylists(id, page, limit);
+  @Get()
+  getPlaylists(@Query('page') page: number, @Query('limit') limit: number) {
+    return this.playlistService.getPlaylists(page, limit);
+  }
+  @Get(':id')
+  getPlaylistsDetails(@Param('id') id: string) {
+    return this.playlistService.getPlaylistDetails(id);
   }
 }

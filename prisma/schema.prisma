@@ -30,7 +30,7 @@ model User{
   Channel   Channel[]
   Reactions Reaction[]
   Comments  Comment[]
-  AddToFav  AddToFav[]
+  Favorites  Favorites[]
   Subscriptions Subscription[]
   BlockedChannels BlockedChannel[]
   Children  ParentsChildren[]  @relation("child_relation")
@@ -152,7 +152,7 @@ model Content {
   updatedAt DateTime    @updatedAt
   Views     Views[]
   Comments  Comment[]
-  AddToFav  AddToFav[]
+  Favorites  Favorites[]
   Reactions Reaction[]
   Content_TF_Questions Content_TF_Questions[]
   Playlist   Playlist?     @relation(fields: [playlistId], references: [id], onDelete: SetNull)
@@ -176,6 +176,7 @@ model Stories {
   url       String
   status    CONTENT_STATUS_ENUM @default(PENDING)
   description String?
+  contentRecord String?
   rejectedReason String?
   channelId   String    @db.Uuid()
   categoryId  String    @db.Uuid()
@@ -211,11 +212,11 @@ model Reaction {
   id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
   childId     String    @db.Uuid()
   contentId   String    @db.Uuid()
-  type        REACTION_TYPE_ENUM @default(LIKE)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   Child       User     @relation(fields: [childId], references: [id], onDelete: Cascade)
   Content     Content     @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  @@unique([childId,contentId])
 }
 
 model Comment {
@@ -229,7 +230,7 @@ model Comment {
   Content     Content     @relation(fields: [contentId], references: [id], onDelete: Cascade)
 }
 
-model AddToFav {
+model Favorites {
   id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
   childId     String    @db.Uuid()
   contentId   String    @db.Uuid()
@@ -297,13 +298,6 @@ enum CONTENT_STATUS_ENUM {
   APPROVED
   REJECTED
   ARCHIVED
-}
-
-enum REACTION_TYPE_ENUM {
-  LIKE
-  LOVE
-  FUNNY
-  INSIGHTFUL
 }
 
 enum VIEW_TYPE_ENUM {

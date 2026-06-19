@@ -53,12 +53,12 @@ export class ChannelController {
   deleteChannel(@GetUser('id') userId: string, @Param('id') id: string) {
     return this.channelService.deleteChannel(userId, id);
   }
-  @Get(['', ':id'])
-  getChannel(
-    @Param('id') id?: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-  ) {
-    return this.channelService.getChannel(id, page, limit);
+  @Get()
+  getChannel(@Query('page') page: number, @Query('limit') limit: number) {
+    return this.channelService.getChannel(page, limit);
+  }
+  @Get(':id')
+  getChannelDetails(@Param('id') id: string) {
+    return this.channelService.getChannelDetails(id);
   }
 }

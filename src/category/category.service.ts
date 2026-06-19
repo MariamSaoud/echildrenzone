@@ -36,31 +36,26 @@ export class CategoryService {
     await this.prismaService.category.delete({ where: { id: categoryId } });
     return { message: 'Deleted Successfully!' };
   }
-  async getCategory(
-    categoryId: string | undefined,
-    page: number | undefined,
-    limit: number | undefined,
-  ) {
-    if (categoryId) {
-      const data = await this.prismaService.category.findUnique({
-        where: { id: categoryId },
-      });
-      return { data };
+  async getCategory(page: number, limit: number) {
+    if (!limit || !page) {
+      throw new BadRequestException('invalid data !');
     } else {
-      if (!limit || !page) {
-        throw new BadRequestException('invalid data !');
-      } else {
-        const offset = (page - 1) * limit;
-        const data = await this.prismaService.category.findMany({
-          take: limit,
-          skip: offset,
-        });
-        const total = await this.prismaService.category.count();
-        return {
-          data,
-          pagination: { totalPages: Math.ceil(total / limit), page, limit },
-        };
-      }
+      const offset = (page - 1) * limit;
+      const data = await this.prismaService.category.findMany({
+        take: limit,
+        skip: offset,
+      });
+      const total = await this.prismaService.category.count();
+      return {
+        data,
+        pagination: { totalPages: Math.ceil(total / limit), page, limit },
+      };
     }
+  }
+  async getCategoryDetails(id: string) {
+    const data = await this.prismaService.category.findUnique({
+      where: { id },
+    });
+    return { data };
   }
 }

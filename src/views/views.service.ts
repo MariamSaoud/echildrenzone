@@ -6,13 +6,31 @@ import {
 } from '@nestjs/common';
 import { AddView, UpdateView } from './dto/views.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserBalanceService } from 'src/user-balance/user-balance.service';
 
 @Injectable()
 export class ViewsService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private userBalance: UserBalanceService,
+  ) {}
   async addView(childId: string, dto: AddView) {
+    const creatorData = await this.userBalance.findUserBalance(
+      dto.contentId,
+      'VIEW',
+    );
     const data = await this.prismaService.views.create({
       data: { ...dto, childId },
+    });
+    await this.prismaService.userBalance.update({
+      where: {
+        creatorId: creatorData.myBalance!.creatorId,
+        currency: creatorData.myBalance!.currency,
+      },
+      data: {
+        amount:
+          +creatorData.myBalance!.amount + +creatorData.reached!.paymentAmount,
+      },
     });
     return { data };
   }
@@ -32,7 +50,21 @@ export class ViewsService {
     if (!element) {
       throw new NotFoundException('Not Found!');
     }
+    const creatorData = await this.userBalance.findUserBalance(
+      element.contentId,
+      'VIEW',
+    );
     await this.prismaService.views.delete({ where: { id } });
+    await this.prismaService.userBalance.update({
+      where: {
+        creatorId: creatorData.myBalance!.creatorId,
+        currency: creatorData.myBalance!.currency,
+      },
+      data: {
+        amount:
+          +creatorData.myBalance!.amount - +creatorData.reached!.paymentAmount,
+      },
+    });
     return { message: 'Deleted Successfully!' };
   }
   async getView(contentId: string, page: number, limit: number) {

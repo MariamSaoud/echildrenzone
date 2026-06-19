@@ -49,38 +49,33 @@ export class PlaylistService {
     await this.prismaService.playlist.delete({ where: { id } });
     return { message: 'Deleted Successfully!' };
   }
-  async getPlaylists(
-    id: string | undefined,
-    page: number | undefined,
-    limit: number | undefined,
-  ) {
-    if (id) {
-      const data = await this.prismaService.playlist.findUnique({
-        where: { id },
-        include: {
-          Category: true,
-          ContentAge: true,
-          Channel: true,
-          Content: { where: { status: CONTENT_STATUS_ENUM.APPROVED } },
-        },
-      });
-      return { data };
+  async getPlaylists(page: number, limit: number) {
+    if (!limit || !page) {
+      throw new BadRequestException('Invalid Data!');
     } else {
-      if (!limit || !page) {
-        throw new BadRequestException('Invalid Data!');
-      } else {
-        const offset = (page - 1) * limit;
-        const data = await this.prismaService.playlist.findMany({
-          include: { Category: true, ContentAge: true, Channel: true },
-          take: limit,
-          skip: offset,
-        });
-        const total = await this.prismaService.playlist.count();
-        return {
-          data,
-          pagination: { totalPages: Math.ceil(total / limit), page, limit },
-        };
-      }
+      const offset = (page - 1) * limit;
+      const data = await this.prismaService.playlist.findMany({
+        include: { Category: true, ContentAge: true, Channel: true },
+        take: limit,
+        skip: offset,
+      });
+      const total = await this.prismaService.playlist.count();
+      return {
+        data,
+        pagination: { totalPages: Math.ceil(total / limit), page, limit },
+      };
     }
+  }
+  async getPlaylistDetails(id: string) {
+    const data = await this.prismaService.playlist.findUnique({
+      where: { id },
+      include: {
+        Category: true,
+        ContentAge: true,
+        Channel: true,
+        Content: { where: { status: CONTENT_STATUS_ENUM.APPROVED } },
+      },
+    });
+    return { data };
   }
 }

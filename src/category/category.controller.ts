@@ -39,12 +39,14 @@ export class CategoryController {
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN, Role.CREATOR)
-  @Get(['', ':id'])
-  getCategory(
-    @Param('id') categoryId?: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-  ) {
-    return this.categoryService.getCategory(categoryId, page, limit);
+  @Get()
+  getCategory(@Query('page') page: number, @Query('limit') limit: number) {
+    return this.categoryService.getCategory(page, limit);
+  }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Get(':id')
+  getCategoryDetails(@Param('id') categoryId: string) {
+    return this.categoryService.getCategoryDetails(categoryId);
   }
 }
