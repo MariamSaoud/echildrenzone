@@ -56,10 +56,13 @@ export class PlaylistService {
       const offset = (page - 1) * limit;
       const data = await this.prismaService.playlist.findMany({
         include: { Category: true, ContentAge: true, Channel: true },
+        where: { deletedAt: null, archivedAt: null },
         take: limit,
         skip: offset,
       });
-      const total = await this.prismaService.playlist.count();
+      const total = await this.prismaService.playlist.count({
+        where: { deletedAt: null, archivedAt: null },
+      });
       return {
         data,
         pagination: { totalPages: Math.ceil(total / limit), page, limit },
@@ -77,5 +80,45 @@ export class PlaylistService {
       },
     });
     return { data };
+  }
+  async archiveToggle(id: string) {
+    const playlist = await this.prismaService.playlist.findUnique({
+      where: { id },
+      select: { archivedAt: true },
+    });
+    if (!playlist) {
+      throw new NotFoundException('Not Found!');
+    }
+    if (!playlist.archivedAt) {
+      await this.prismaService.playlist.update({
+        where: { id },
+        data: { archivedAt: new Date() },
+      });
+    } else {
+      await this.prismaService.playlist.update({
+        where: { id },
+        data: { archivedAt: null },
+      });
+    }
+  }
+  async getArchivedPlaylists(page: number, limit: number) {
+    if (!limit || !page) {
+      throw new BadRequestException('Invalid Data!');
+    } else {
+      const offset = (page - 1) * limit;
+      const data = await this.prismaService.playlist.findMany({
+        include: { Category: true, ContentAge: true, Channel: true },
+        where: { deletedAt: null, archivedAt: { not: null } },
+        take: limit,
+        skip: offset,
+      });
+      const total = await this.prismaService.playlist.count({
+        where: { deletedAt: null, archivedAt: { not: null } },
+      });
+      return {
+        data,
+        pagination: { totalPages: Math.ceil(total / limit), page, limit },
+      };
+    }
   }
 }

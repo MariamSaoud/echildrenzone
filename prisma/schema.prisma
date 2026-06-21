@@ -20,7 +20,8 @@ model User{
   gender    GENDER_ENUM 
   isBlocked Boolean     @default(false)
   accountId String      @db.Uuid()
-  pin       String?     
+  pin       String?  
+  deletedAt DateTime?   
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
@@ -43,7 +44,8 @@ model Account{
   email     String      @unique(map: "email") @db.VarChar(255)
   password  String
   accountRole ACCOUNT_ROLE_ENUM @default(PERSONAL)
-  authKey   String       
+  authKey   String   
+  deletedAt  DateTime?    
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   users     User[]
@@ -54,6 +56,7 @@ model UserBalance {
   amount    Decimal     @default(0.0)
   creatorId String         @unique(map: "creatorId") @db.Uuid()
   currency  CURRENCY_ENUM    @default(USD)
+  deletedAt DateTime?
   creator   User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
@@ -87,6 +90,8 @@ model Category {
   id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
   type      CATEGORY_TYPE_ENUM @default(ENTERTAIMENT)
   specificType String
+  archivedAt DateTime?
+  deletedAt  DateTime?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   Stories   Stories[]
@@ -99,6 +104,7 @@ model ContentAge {
   id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
   startAge  Int         
   endAge    Int
+  deletedAt  DateTime?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   Content   Content[]
@@ -111,6 +117,8 @@ model Channel {
   name        String
   description String?
   creatorId   String    @db.Uuid()
+  archivedAt DateTime?
+  deletedAt  DateTime?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   Stories   Stories[]
@@ -129,6 +137,8 @@ model Playlist {
   channelId   String    @db.Uuid()
   categoryId  String    @db.Uuid()
   contentAgeId   String @db.Uuid()
+  archivedAt DateTime?
+  deletedAt  DateTime?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   Content   Content[]
@@ -148,6 +158,8 @@ model Content {
   channelId   String          @db.Uuid()
   categoryId  String          @db.Uuid()
   contentAgeId   String       @db.Uuid()
+  archivedAt DateTime?
+  deletedAt  DateTime?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   Views     Views[]
@@ -166,6 +178,8 @@ model Content_TF_Questions {
   question  String
   answer    Boolean
   contentId String      @db.Uuid()   
+  archivedAt DateTime?
+  deletedAt  DateTime?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   Content   Content     @relation(fields: [contentId], references: [id], onDelete: Cascade)
@@ -180,6 +194,7 @@ model Stories {
   rejectedReason String?
   channelId   String    @db.Uuid()
   categoryId  String    @db.Uuid()
+  deletedAt  DateTime?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   Channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)

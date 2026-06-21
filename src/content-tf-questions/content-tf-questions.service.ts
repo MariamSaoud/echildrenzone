@@ -25,13 +25,10 @@ export class ContentTfQuestionsService {
     return { data };
   }
   async deleteQuestion(id: string) {
-    const element = await this.prismaService.content_TF_Questions.findUnique({
+    await this.prismaService.content_TF_Questions.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
-    if (!element) {
-      throw new NotFoundException('Not Found!');
-    }
-    await this.prismaService.content_TF_Questions.delete({ where: { id } });
     return { message: 'Deleted Successfully!' };
   }
   async getQuestionsForContent(id: string, page: number, limit: number) {
@@ -40,13 +37,13 @@ export class ContentTfQuestionsService {
     }
     const offset = (page - 1) * limit;
     const data = await this.prismaService.content_TF_Questions.findMany({
-      where: { contentId: id },
+      where: { contentId: id, deletedAt: null, archivedAt: null },
       include: { Content: true },
       take: limit,
       skip: offset,
     });
     const total = await this.prismaService.content_TF_Questions.count({
-      where: { contentId: id },
+      where: { contentId: id, deletedAt: null, archivedAt: null },
     });
     return {
       data,
@@ -61,5 +58,49 @@ export class ContentTfQuestionsService {
       return { answer: true };
     }
     return { answer: false };
+  }
+  async archiveToggle(id: string) {
+    const content_TF_Questions =
+      await this.prismaService.content_TF_Questions.findUnique({
+        where: { id },
+        select: { archivedAt: true },
+      });
+    if (!content_TF_Questions) {
+      throw new NotFoundException('Not Found!');
+    }
+    if (!content_TF_Questions.archivedAt) {
+      await this.prismaService.content_TF_Questions.update({
+        where: { id },
+        data: { archivedAt: new Date() },
+      });
+    } else {
+      await this.prismaService.content_TF_Questions.update({
+        where: { id },
+        data: { archivedAt: null },
+      });
+    }
+  }
+  async getArchivedQuestionsForContent(
+    id: string,
+    page: number,
+    limit: number,
+  ) {
+    if (!page || !limit) {
+      throw new BadRequestException('Invalid Data!');
+    }
+    const offset = (page - 1) * limit;
+    const data = await this.prismaService.content_TF_Questions.findMany({
+      where: { contentId: id, deletedAt: null, archivedAt: { not: null } },
+      include: { Content: true },
+      take: limit,
+      skip: offset,
+    });
+    const total = await this.prismaService.content_TF_Questions.count({
+      where: { contentId: id, deletedAt: null, archivedAt: { not: null } },
+    });
+    return {
+      data,
+      pagination: { totalPages: Math.ceil(total / limit), page, limit },
+    };
   }
 }

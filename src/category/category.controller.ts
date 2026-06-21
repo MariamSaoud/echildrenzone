@@ -45,8 +45,23 @@ export class CategoryController {
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN, Role.CREATOR)
+  @Get('/archived')
+  getArchivedCategory(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.categoryService.getArchivedCategory(page, limit);
+  }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.ADMIN, Role.CREATOR)
   @Get(':id')
   getCategoryDetails(@Param('id') categoryId: string) {
     return this.categoryService.getCategoryDetails(categoryId);
+  }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Post(':id/archive')
+  archiveToggle(@Param('id') categoryId: string) {
+    return this.categoryService.archiveToggle(categoryId);
   }
 }

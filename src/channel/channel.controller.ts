@@ -57,8 +57,23 @@ export class ChannelController {
   getChannel(@Query('page') page: number, @Query('limit') limit: number) {
     return this.channelService.getChannel(page, limit);
   }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Get('/archived')
+  getArchivedCategory(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.channelService.getArchivedChannel(page, limit);
+  }
   @Get(':id')
   getChannelDetails(@Param('id') id: string) {
     return this.channelService.getChannelDetails(id);
+  }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Post(':id/archive')
+  archiveToggle(@Param('id') channelId: string) {
+    return this.channelService.archiveToggle(channelId);
   }
 }

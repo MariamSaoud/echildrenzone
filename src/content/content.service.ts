@@ -35,13 +35,10 @@ export class ContentService {
   }
   async deleteContent(creatorId: string, id: string) {
     await this.IsCreator(id, creatorId);
-    const element = await this.prismaService.content.findUnique({
+    await this.prismaService.content.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
-    if (!element) {
-      throw new NotFoundException('Not Found!');
-    }
-    await this.prismaService.content.delete({ where: { id } });
     return { message: 'Deleted Successfully!' };
   }
   private async findElements(
@@ -100,9 +97,10 @@ export class ContentService {
     }
     if (
       // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
-      data.status !== CONTENT_STATUS_ENUM.PENDING &&
-      (dto.status === CONTENT_STATUS_ENUM.APPROVED ||
-        dto.status === CONTENT_STATUS_ENUM.REJECTED)
+      (data.status !== CONTENT_STATUS_ENUM.PENDING &&
+        (dto.status === CONTENT_STATUS_ENUM.APPROVED ||
+          dto.status === CONTENT_STATUS_ENUM.REJECTED)) ||
+      data.status == 'ARCHIVED'
     ) {
       throw new BadRequestException('Invalid Data');
     }
@@ -149,6 +147,26 @@ export class ContentService {
     });
     if (data?.Channel.creatorId !== userId) {
       throw new ForbiddenException('Not Allowed!');
+    }
+  }
+  async archiveToggle(id: string) {
+    const content = await this.prismaService.content.findUnique({
+      where: { id },
+      select: { archivedAt: true },
+    });
+    if (!content) {
+      throw new NotFoundException('Not Found!');
+    }
+    if (!content.archivedAt) {
+      await this.prismaService.content.update({
+        where: { id },
+        data: { archivedAt: new Date(), status: 'ARCHIVED' },
+      });
+    } else {
+      await this.prismaService.content.update({
+        where: { id },
+        data: { archivedAt: null, status: 'APPROVED' },
+      });
     }
   }
 }

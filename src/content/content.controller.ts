@@ -67,4 +67,10 @@ export class ContentController {
   contentStatus(@Param('id') id: string, @Body() dto: ChangeContentStatus) {
     return this.contentService.contentStatus(id, dto);
   }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Post(':id/archive')
+  archiveToggle(@Param('id') contentId: string) {
+    return this.contentService.archiveToggle(contentId);
+  }
 }

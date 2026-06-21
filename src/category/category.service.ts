@@ -27,13 +27,10 @@ export class CategoryService {
     return { data };
   }
   async deleteCategory(categoryId: string) {
-    const element = await this.prismaService.category.findUnique({
+    await this.prismaService.category.update({
       where: { id: categoryId },
+      data: { deletedAt: new Date() },
     });
-    if (!element) {
-      throw new NotFoundException('Not Found!');
-    }
-    await this.prismaService.category.delete({ where: { id: categoryId } });
     return { message: 'Deleted Successfully!' };
   }
   async getCategory(page: number, limit: number) {
@@ -44,8 +41,11 @@ export class CategoryService {
       const data = await this.prismaService.category.findMany({
         take: limit,
         skip: offset,
+        where: { deletedAt: null, archivedAt: null },
       });
-      const total = await this.prismaService.category.count();
+      const total = await this.prismaService.category.count({
+        where: { deletedAt: null, archivedAt: { not: null } },
+      });
       return {
         data,
         pagination: { totalPages: Math.ceil(total / limit), page, limit },
@@ -57,5 +57,44 @@ export class CategoryService {
       where: { id },
     });
     return { data };
+  }
+  async archiveToggle(id: string) {
+    const category = await this.prismaService.category.findUnique({
+      where: { id },
+      select: { archivedAt: true },
+    });
+    if (!category) {
+      throw new NotFoundException('Not Found!');
+    }
+    if (!category.archivedAt) {
+      await this.prismaService.category.update({
+        where: { id },
+        data: { archivedAt: new Date() },
+      });
+    } else {
+      await this.prismaService.category.update({
+        where: { id },
+        data: { archivedAt: null },
+      });
+    }
+  }
+  async getArchivedCategory(page: number, limit: number) {
+    if (!limit || !page) {
+      throw new BadRequestException('invalid data !');
+    } else {
+      const offset = (page - 1) * limit;
+      const data = await this.prismaService.category.findMany({
+        take: limit,
+        skip: offset,
+        where: { deletedAt: null, archivedAt: { not: null } },
+      });
+      const total = await this.prismaService.category.count({
+        where: { deletedAt: null, archivedAt: { not: null } },
+      });
+      return {
+        data,
+        pagination: { totalPages: Math.ceil(total / limit), page, limit },
+      };
+    }
   }
 }

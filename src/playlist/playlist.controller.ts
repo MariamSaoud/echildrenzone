@@ -41,8 +41,23 @@ export class PlaylistController {
   getPlaylists(@Query('page') page: number, @Query('limit') limit: number) {
     return this.playlistService.getPlaylists(page, limit);
   }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Get('/archived')
+  getArchivedCategory(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.playlistService.getArchivedPlaylists(page, limit);
+  }
   @Get(':id')
   getPlaylistsDetails(@Param('id') id: string) {
     return this.playlistService.getPlaylistDetails(id);
+  }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Post(':id/archive')
+  archiveToggle(@Param('id') channelId: string) {
+    return this.playlistService.archiveToggle(channelId);
   }
 }

@@ -50,10 +50,29 @@ export class ContentTfQuestionsController {
       limit,
     );
   }
+  @UseGuards(IsntBlocked)
+  @Get(':id')
+  getArchivedQuestionsForContent(
+    @Param('id') contentId: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.contentTfQuestionsService.getArchivedQuestionsForContent(
+      contentId,
+      page,
+      limit,
+    );
+  }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.CHILD)
   @Post(':id/answer')
   answerQuestion(@Param('id') id: string, @Body('answer') answer: boolean) {
     return this.contentTfQuestionsService.answerQuestion(id, answer);
+  }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Post(':id/archive')
+  archiveToggle(@Param('id') id: string) {
+    return this.contentTfQuestionsService.archiveToggle(id);
   }
 }

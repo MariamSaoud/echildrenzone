@@ -14,7 +14,6 @@ export class AddToFavService {
       'ADDTOFAV',
     );
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       await this.prismaService.favorites.delete({
         where: { childId_contentId: { childId, contentId } },
       });
@@ -32,7 +31,6 @@ export class AddToFavService {
       return { message: 'Remove From Favorite Successfully!' };
     } catch (error) {
       if (error.code === 'P2025') {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         await this.prismaService.favorites.create({
           data: { childId, contentId },
         });
@@ -58,14 +56,14 @@ export class AddToFavService {
       throw new BadRequestException('invalid Data!');
     }
     const offset = (page - 1) * limit;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
     const data = await this.prismaService.favorites.findMany({
       where: { childId },
       include: { Content: true },
       take: limit,
       skip: offset,
     });
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
     const total = await this.prismaService.favorites.count({
       where: { childId },
     });

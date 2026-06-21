@@ -362,4 +362,26 @@ export class AuthService {
       return await this.emailService.sendOTP(dto);
     }
   }
+  async deleteUser(id: string, role: Role, accId: string) {
+    await this.prismaService.user.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+    const total = await this.prismaService.user.count({
+      where: { accountId: accId },
+    });
+    if (total === 0) {
+      await this.prismaService.account.update({
+        where: { id: accId },
+        data: { deletedAt: new Date() },
+      });
+    }
+    if (role === Role.CREATOR) {
+      await this.prismaService.userBalance.update({
+        where: { creatorId: id },
+        data: { deletedAt: new Date() },
+      });
+    }
+    return { message: 'Deleted Successfully!' };
+  }
 }

@@ -36,7 +36,10 @@ export class ContentAgeService {
     if (!element) {
       throw new NotFoundException('Not Found!');
     }
-    await this.prismaService.contentAge.delete({ where: { id } });
+    await this.prismaService.contentAge.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
     return { message: 'Deleted Successfully!' };
   }
   async getContentAges(page: number, limit: number) {
@@ -47,6 +50,7 @@ export class ContentAgeService {
       const data = await this.prismaService.contentAge.findMany({
         take: limit,
         skip: offset,
+        where: { deletedAt: null },
       });
       const total = await this.prismaService.contentAge.count();
       return {
