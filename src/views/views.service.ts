@@ -15,23 +15,10 @@ export class ViewsService {
     private userBalance: UserBalanceService,
   ) {}
   async addView(childId: string, dto: AddView) {
-    const creatorData = await this.userBalance.findUserBalance(
-      dto.contentId,
-      'VIEW',
-    );
     const data = await this.prismaService.views.create({
       data: { ...dto, childId },
     });
-    await this.prismaService.userBalance.update({
-      where: {
-        creatorId: creatorData.myBalance!.creatorId,
-        currency: creatorData.myBalance!.currency,
-      },
-      data: {
-        amount:
-          +creatorData.myBalance!.amount + +creatorData.reached!.paymentAmount,
-      },
-    });
+    await this.userBalance.depositBalance(dto.contentId, 'VIEW');
     return { data };
   }
   async updateView(childId: string, id: string, dto: UpdateView) {
@@ -50,21 +37,8 @@ export class ViewsService {
     if (!element) {
       throw new NotFoundException('Not Found!');
     }
-    const creatorData = await this.userBalance.findUserBalance(
-      element.contentId,
-      'VIEW',
-    );
     await this.prismaService.views.delete({ where: { id } });
-    await this.prismaService.userBalance.update({
-      where: {
-        creatorId: creatorData.myBalance!.creatorId,
-        currency: creatorData.myBalance!.currency,
-      },
-      data: {
-        amount:
-          +creatorData.myBalance!.amount - +creatorData.reached!.paymentAmount,
-      },
-    });
+    await this.userBalance.withdrawBalance(element.contentId, 'VIEW');
     return { message: 'Deleted Successfully!' };
   }
   async getView(contentId: string, page: number, limit: number) {

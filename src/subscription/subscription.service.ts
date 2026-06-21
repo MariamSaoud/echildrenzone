@@ -9,42 +9,18 @@ export class SubscriptionService {
     private userBalance: UserBalanceService,
   ) {}
   async toggleChannelSubscription(childId: string, channelId: string) {
-    const creatorData = await this.userBalance.findUserBalanceChannel(
-      channelId,
-      'SUBSCRIBE',
-    );
     try {
       await this.prismaService.subscription.delete({
         where: { childId_channelId: { channelId, childId } },
       });
-      await this.prismaService.userBalance.update({
-        where: {
-          creatorId: creatorData.myBalance!.creatorId,
-          currency: creatorData.myBalance!.currency,
-        },
-        data: {
-          amount:
-            +creatorData.myBalance!.amount -
-            +creatorData.reached!.paymentAmount,
-        },
-      });
+      await this.userBalance.withdrawSubscriptionBalance(channelId);
       return { message: 'UnSubscribe Successfully!' };
     } catch (error) {
       if (error.code === 'P2025') {
         await this.prismaService.subscription.create({
           data: { childId, channelId },
         });
-        await this.prismaService.userBalance.update({
-          where: {
-            creatorId: creatorData.myBalance!.creatorId,
-            currency: creatorData.myBalance!.currency,
-          },
-          data: {
-            amount:
-              +creatorData.myBalance!.amount +
-              +creatorData.reached!.paymentAmount,
-          },
-        });
+        await this.userBalance.depositSubscriptionBalance(channelId);
         return { message: 'Subscribe Successfully!' };
       } else {
         throw error;

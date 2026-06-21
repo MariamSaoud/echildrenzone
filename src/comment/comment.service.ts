@@ -15,23 +15,10 @@ export class CommentService {
     private userBalance: UserBalanceService,
   ) {}
   async addComment(id: string, dto: AddComment) {
-    const creatorData = await this.userBalance.findUserBalance(
-      dto.contentId,
-      'COMMENT',
-    );
     const data = await this.prismaService.comment.create({
       data: { ...dto, childId: id },
     });
-    await this.prismaService.userBalance.update({
-      where: {
-        creatorId: creatorData.myBalance!.creatorId,
-        currency: creatorData.myBalance!.currency,
-      },
-      data: {
-        amount:
-          +creatorData.myBalance!.amount + +creatorData.reached!.paymentAmount,
-      },
-    });
+    await this.userBalance.depositBalance(data.contentId, 'COMMENT');
     return { data };
   }
   async changeComment(childId: string, id: string, dto: UpdateComment) {
@@ -51,20 +38,7 @@ export class CommentService {
       throw new NotFoundException('Not Found!');
     }
     await this.prismaService.comment.delete({ where: { id } });
-    const creatorData = await this.userBalance.findUserBalance(
-      element.contentId,
-      'COMMENT',
-    );
-    await this.prismaService.userBalance.update({
-      where: {
-        creatorId: creatorData.myBalance!.creatorId,
-        currency: creatorData.myBalance!.currency,
-      },
-      data: {
-        amount:
-          +creatorData.myBalance!.amount - +creatorData.reached!.paymentAmount,
-      },
-    });
+    await this.userBalance.withdrawBalance(element.contentId, 'COMMENT');
     return { message: 'Deleted Successfully!' };
   }
   async getCommentsForChild(childId: string, page: number, limit: number) {

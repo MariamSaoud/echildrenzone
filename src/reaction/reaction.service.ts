@@ -9,42 +9,18 @@ export class ReactionService {
     private userBalance: UserBalanceService,
   ) {}
   async toggleReaction(childId: string, contentId: string) {
-    const creatorData = await this.userBalance.findUserBalance(
-      contentId,
-      'REACTION',
-    );
     try {
       await this.prismaService.reaction.delete({
         where: { childId_contentId: { childId, contentId } },
       });
-      await this.prismaService.userBalance.update({
-        where: {
-          creatorId: creatorData.myBalance!.creatorId,
-          currency: creatorData.myBalance!.currency,
-        },
-        data: {
-          amount:
-            +creatorData.myBalance!.amount -
-            +creatorData.reached!.paymentAmount,
-        },
-      });
+      await this.userBalance.withdrawBalance(contentId, 'REACTION');
       return { message: 'UnBlocked Successfully!' };
     } catch (error) {
       if (error.code === 'P2025') {
         await this.prismaService.reaction.create({
           data: { childId, contentId },
         });
-        await this.prismaService.userBalance.update({
-          where: {
-            creatorId: creatorData.myBalance!.creatorId,
-            currency: creatorData.myBalance!.currency,
-          },
-          data: {
-            amount:
-              +creatorData.myBalance!.amount +
-              +creatorData.reached!.paymentAmount,
-          },
-        });
+        await this.userBalance.depositBalance(contentId, 'REACTION');
         return { message: 'Blocked Successfully!' };
       } else {
         throw error;

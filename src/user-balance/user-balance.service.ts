@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { REACHED_TYPE_ENUM } from 'generated/prisma/enums';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -32,5 +32,90 @@ export class UserBalanceService {
       where: { creatorId: channel!.creatorId },
     });
     return { myBalance, reached };
+  }
+  async withdrawBalance(contentId: string, type: REACHED_TYPE_ENUM) {
+    const creatorData = await this.findUserBalance(contentId, type);
+    await this.prismaService.userBalance.update({
+      where: {
+        creatorId: creatorData.myBalance!.creatorId,
+        currency: creatorData.myBalance!.currency,
+      },
+      data: {
+        amount:
+          +creatorData.myBalance!.amount - +creatorData.reached!.paymentAmount,
+      },
+    });
+  }
+  async depositBalance(contentId: string, type: REACHED_TYPE_ENUM) {
+    const creatorData = await this.findUserBalance(contentId, type);
+    await this.prismaService.userBalance.update({
+      where: {
+        creatorId: creatorData.myBalance!.creatorId,
+        currency: creatorData.myBalance!.currency,
+      },
+      data: {
+        amount:
+          +creatorData.myBalance!.amount + +creatorData.reached!.paymentAmount,
+      },
+    });
+  }
+  async withdrawSubscriptionBalance(
+    channelId: string,
+    type: REACHED_TYPE_ENUM = 'SUBSCRIBE',
+  ) {
+    const creatorData = await this.findUserBalanceChannel(channelId, type);
+    await this.prismaService.userBalance.update({
+      where: {
+        creatorId: creatorData.myBalance!.creatorId,
+        currency: creatorData.myBalance!.currency,
+      },
+      data: {
+        amount:
+          +creatorData.myBalance!.amount - +creatorData.reached!.paymentAmount,
+      },
+    });
+  }
+  async depositSubscriptionBalance(
+    channelId: string,
+    type: REACHED_TYPE_ENUM = 'SUBSCRIBE',
+  ) {
+    const creatorData = await this.findUserBalanceChannel(channelId, type);
+    await this.prismaService.userBalance.update({
+      where: {
+        creatorId: creatorData.myBalance!.creatorId,
+        currency: creatorData.myBalance!.currency,
+      },
+      data: {
+        amount:
+          +creatorData.myBalance!.amount + +creatorData.reached!.paymentAmount,
+      },
+    });
+  }
+  async getCreatorBalance(creatorId: string) {
+    return await this.prismaService.userBalance.findMany({
+      where: { creatorId },
+    });
+  }
+  async withdrawCreator(id: string, amountWithdrawn: number) {
+    const amount = await this.prismaService.userBalance.findUnique({
+      where: { id },
+      select: { amount: true },
+    });
+    if (+amount!.amount < amountWithdrawn) {
+      throw new ForbiddenException('Not Allowed!');
+    } else {
+      await this.prismaService.userBalance.update({
+        where: {
+          id,
+        },
+        data: {
+          amount: +amount!.amount - amountWithdrawn,
+        },
+      });
+    }
+    return {
+      amountWithdrawn,
+      remainingAmount: +amount!.amount - amountWithdrawn,
+    };
   }
 }

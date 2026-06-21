@@ -9,42 +9,18 @@ export class AddToFavService {
     private userBalance: UserBalanceService,
   ) {}
   async toggleFavorite(childId: string, contentId: string) {
-    const creatorData = await this.userBalance.findUserBalance(
-      contentId,
-      'ADDTOFAV',
-    );
     try {
       await this.prismaService.favorites.delete({
         where: { childId_contentId: { childId, contentId } },
       });
-      await this.prismaService.userBalance.update({
-        where: {
-          creatorId: creatorData.myBalance!.creatorId,
-          currency: creatorData.myBalance!.currency,
-        },
-        data: {
-          amount:
-            +creatorData.myBalance!.amount -
-            +creatorData.reached!.paymentAmount,
-        },
-      });
+      await this.userBalance.withdrawBalance(contentId, 'ADDTOFAV');
       return { message: 'Remove From Favorite Successfully!' };
     } catch (error) {
       if (error.code === 'P2025') {
         await this.prismaService.favorites.create({
           data: { childId, contentId },
         });
-        await this.prismaService.userBalance.update({
-          where: {
-            creatorId: creatorData.myBalance!.creatorId,
-            currency: creatorData.myBalance!.currency,
-          },
-          data: {
-            amount:
-              +creatorData.myBalance!.amount +
-              +creatorData.reached!.paymentAmount,
-          },
-        });
+        await this.userBalance.depositBalance(contentId, 'ADDTOFAV');
         return { message: 'Add To Favorite Successfully!' };
       } else {
         throw error;
