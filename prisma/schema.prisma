@@ -166,6 +166,7 @@ model Content {
   Comments  Comment[]
   Favorites  Favorites[]
   Reactions Reaction[]
+  Stories   Stories[]
   Content_TF_Questions Content_TF_Questions[]
   Playlist   Playlist?     @relation(fields: [playlistId], references: [id], onDelete: SetNull)
   Channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
@@ -190,7 +191,7 @@ model Stories {
   url       String
   status    CONTENT_STATUS_ENUM @default(PENDING)
   description String?
-  contentRecord String?
+  contentRecord String? @db.Uuid()
   rejectedReason String?
   channelId   String    @db.Uuid()
   categoryId  String    @db.Uuid()
@@ -198,7 +199,8 @@ model Stories {
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   Channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  Category   Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  Category   Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  content    Content?   @relation(fields: [contentRecord],references: [id], onDelete: SetNull) 
 }
 
 model Subscription {

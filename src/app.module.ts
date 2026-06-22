@@ -22,6 +22,7 @@ import { CommentModule } from './comment/comment.module';
 import { AddToFavModule } from './add-to-fav/add-to-fav.module';
 import { ViewsModule } from './views/views.module';
 import { UserBalanceModule } from './user-balance/user-balance.module';
+import { StoriesModule } from './stories/stories.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { UserBalanceModule } from './user-balance/user-balance.module';
     AddToFavModule,
     ViewsModule,
     UserBalanceModule,
+    StoriesModule,
   ],
   controllers: [],
   providers: [
