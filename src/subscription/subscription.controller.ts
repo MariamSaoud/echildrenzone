@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { Role } from 'src/auth/dto/register.dto';
 import { GetUser } from 'src/decorators/getUser.decorator';
 import { Roles } from 'src/decorators/rolesGuard.decorator';
@@ -21,8 +21,28 @@ export class SubscriptionController {
       channelId,
     );
   }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.CHILD)
   @Get()
   getSubscribedChannel(@GetUser('id') childId: string) {
     return this.subscriptionService.getSubscribedChannel(childId);
+  }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.PARENT)
+  @Get('parent/:id')
+  getSubscribedChildChannel(@Param('id') childId: string) {
+    return this.subscriptionService.getSubscribedChannel(childId);
+  }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.PARENT)
+  @Post('parent/:id')
+  toggleChannelChildSubscription(
+    @Param('id') childId: string,
+    @Body('channelId') channelId: string,
+  ) {
+    return this.subscriptionService.toggleChannelSubscription(
+      childId,
+      channelId,
+    );
   }
 }

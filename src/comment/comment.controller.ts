@@ -60,4 +60,14 @@ export class CommentController {
   ) {
     return this.commentService.getCommentsForContent(id, page, limit);
   }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.CHILD)
+  @Get('parent/:id')
+  getChildComments(
+    @Param('id') id: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.commentService.getCommentsForChild(id, page, limit);
+  }
 }

@@ -28,4 +28,14 @@ export class AddToFavController {
   ) {
     return this.addToFavService.getFavForChild(childId, page, limit);
   }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.PARENT)
+  @Get('parents/:id')
+  getChildFavorite(
+    @Param('id') childId: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.addToFavService.getFavForChild(childId, page, limit);
+  }
 }

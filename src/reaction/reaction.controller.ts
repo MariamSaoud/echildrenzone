@@ -44,4 +44,14 @@ export class ReactionController {
   ) {
     return this.reactionService.getReactionForContent(id, page, limit);
   }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Roles(Role.CHILD)
+  @Get('parent/:id')
+  getChildReactions(
+    @Param('id') id: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.reactionService.getReactionsForChild(id, page, limit);
+  }
 }

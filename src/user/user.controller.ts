@@ -31,4 +31,10 @@ export class UserController {
   ) {
     return this.userService.addFamily(dto, accountId, userId);
   }
+  @Roles(Role.PARENT)
+  @UseGuards(RolesGuard, IsntBlocked, hasPIN)
+  @Get()
+  children(@GetUser('id') userId: string) {
+    return this.userService.getChildren(userId);
+  }
 }

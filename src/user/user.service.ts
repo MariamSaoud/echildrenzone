@@ -77,4 +77,10 @@ export class UserService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return profile;
   }
+  async getChildren(parentId: string) {
+    return await this.prismaService.parentsChildren.findMany({
+      where: { parentId },
+      include: { Child: true },
+    });
+  }
 }
