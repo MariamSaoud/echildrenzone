@@ -83,4 +83,11 @@ export class UserService {
       include: { Child: true },
     });
   }
+  async blockUser(id: string) {
+    await this.prismaService.user.update({
+      where: { id },
+      data: { isBlocked: true },
+    });
+    return { message: 'Blocked Successfully!' };
+  }
 }

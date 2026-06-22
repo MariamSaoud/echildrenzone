@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AddFamily } from './dto/addFamily.dto';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { Register, Role } from '../auth/dto/register.dto';
@@ -36,5 +44,11 @@ export class UserController {
   @Get()
   children(@GetUser('id') userId: string) {
     return this.userService.getChildren(userId);
+  }
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Patch(':id')
+  blockUser(@Param('id') id: string) {
+    return this.userService.blockUser(id);
   }
 }
