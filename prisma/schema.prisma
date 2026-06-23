@@ -75,7 +75,7 @@ model ParentsChildren {
   @@unique([parentId,childId])
 }
 
-model ReachedToContent {
+model userActionsPricing {
   id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
   paymentAmount Decimal @default(1.0)
   type      REACHED_TYPE_ENUM 
@@ -198,6 +198,7 @@ model Stories {
   deletedAt  DateTime?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+  reactions Reaction[]
   Channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
   Category   Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   content    Content?   @relation(fields: [contentRecord],references: [id], onDelete: SetNull) 
@@ -228,12 +229,15 @@ model BlockedChannel {
 model Reaction {
   id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
   childId     String    @db.Uuid()
-  contentId   String    @db.Uuid()
+  contentId   String?    @db.Uuid()
+  storyId   String?    @db.Uuid()
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   Child       User     @relation(fields: [childId], references: [id], onDelete: Cascade)
-  Content     Content     @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  Content     Content?     @relation(fields: [contentId], references: [id], onDelete: SetNull)
+  story       Stories?   @relation(fields: [storyId], references: [id], onDelete: SetNull)
   @@unique([childId,contentId])
+  @@unique([childId,storyId])
 }
 
 model Comment {

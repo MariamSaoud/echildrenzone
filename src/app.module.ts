@@ -11,7 +11,7 @@ import { EmailModule } from './email-sender/email-sender.module';
 import { ChannelModule } from './channel/channel.module';
 import { CategoryModule } from './category/category.module';
 import { ContentAgeModule } from './content-age/content-age.module';
-import { ReachedToContentModule } from './reached-to-content/reached-to-content.module';
+import { userActionsPricingModule } from './user-actions-pricing-config/user-actions-pricing-config.module';
 import { PlaylistModule } from './playlist/playlist.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { BlockedChannelModule } from './blocked-channel/blocked-channel.module';
@@ -44,7 +44,7 @@ import { StoriesModule } from './stories/stories.module';
     ChannelModule,
     CategoryModule,
     ContentAgeModule,
-    ReachedToContentModule,
+    userActionsPricingModule,
     PlaylistModule,
     SubscriptionModule,
     BlockedChannelModule,

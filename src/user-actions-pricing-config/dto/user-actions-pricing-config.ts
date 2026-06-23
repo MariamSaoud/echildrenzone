@@ -1,4 +1,3 @@
-import { PartialType } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 export enum REACHED_TYPE_ENUM {
   REACTION = 'REACTION',
@@ -12,7 +11,7 @@ export enum CURRENCY_ENUM {
   USD = 'USD',
 }
 
-export class ReachedToContent {
+export class AddUserActionsPricing {
   @IsOptional()
   @IsEnum(CURRENCY_ENUM)
   currency: CURRENCY_ENUM = CURRENCY_ENUM.USD;
@@ -23,4 +22,11 @@ export class ReachedToContent {
   @IsNumber({ maxDecimalPlaces: 2 })
   paymentAmount?: number;
 }
-export class UpdateReachedToContent extends PartialType(ReachedToContent) {}
+export class UpdateUserActionsPricing {
+  @IsOptional()
+  @IsEnum(CURRENCY_ENUM)
+  currency: CURRENCY_ENUM = CURRENCY_ENUM.USD;
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  paymentAmount?: number;
+}

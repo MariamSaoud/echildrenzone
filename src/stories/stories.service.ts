@@ -40,6 +40,17 @@ export class StoriesService {
     });
     return { message: 'Deleted Successfully!' };
   }
+
+  async getStory(id: string) {
+    return await this.prismaService.stories.findUnique({
+      where: { id },
+      include: {
+        content: true,
+        Channel: true,
+        _count: { select: { reactions: true } },
+      },
+    });
+  }
   private async isMe(id: string, creatorId: string) {
     const storyCreator = await this.prismaService.stories.findUnique({
       where: { id },

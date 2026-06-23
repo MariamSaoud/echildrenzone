@@ -82,6 +82,7 @@ export class ContentService {
           select: {
             Reactions: true,
             Comments: true,
+            Views: true,
           },
         },
       },

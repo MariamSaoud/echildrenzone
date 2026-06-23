@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Post,
@@ -13,43 +12,40 @@ import { Role } from 'src/auth/dto/register.dto';
 import { Roles } from 'src/decorators/rolesGuard.decorator';
 import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
-import { ReachedToContentService } from './reached-to-content.service';
-import { ReachedToContent, UpdateReachedToContent } from './dto/reached.dto';
+import { userActionsPricingService } from './user-actions-pricing-config.service';
+import {
+  AddUserActionsPricing,
+  UpdateUserActionsPricing,
+} from './dto/user-actions-pricing-config';
 
 @Controller('reached-to-content')
-export class ReachedToContentController {
-  constructor(private reachedToContentServier: ReachedToContentService) {}
+export class userActionsPricingController {
+  constructor(private userActionsPricingServier: userActionsPricingService) {}
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN)
   @Post()
-  createReachedTo(@Body() dto: ReachedToContent) {
-    return this.reachedToContentServier.createReachedTo(dto);
+  createReachedTo(@Body() dto: AddUserActionsPricing) {
+    return this.userActionsPricingServier.createReachedTo(dto);
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN)
   @Put(':id')
   updateReachedTo(
     @Param('id') id: string,
-    @Body() dto: UpdateReachedToContent,
+    @Body() dto: UpdateUserActionsPricing,
   ) {
-    return this.reachedToContentServier.updateReachedTo(id, dto);
-  }
-  @UseGuards(RolesGuard, IsntBlocked)
-  @Roles(Role.ADMIN)
-  @Delete(':id')
-  deleteReachedTo(@Param('id') id: string) {
-    return this.reachedToContentServier.deleteReachedTo(id);
+    return this.userActionsPricingServier.updateReachedTo(id, dto);
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN)
   @Get()
   getReachedTo(@Query('page') page: number, @Query('limit') limit: number) {
-    return this.reachedToContentServier.getReachedTo(page, limit);
+    return this.userActionsPricingServier.getReachedTo(page, limit);
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN)
   @Get(':id')
   getReachedToDetails(@Param('id') id: string) {
-    return this.reachedToContentServier.getReachedToDetails(id);
+    return this.userActionsPricingServier.getReachedToDetails(id);
   }
 }

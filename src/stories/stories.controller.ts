@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
@@ -52,6 +53,10 @@ export class StoriesController {
   @Delete(':id')
   deleteStory(@Param('id') id: string, @GetUser('id') creatorId: string) {
     return this.storiesService.deleteStory(id, creatorId);
+  }
+  @Get(':id')
+  getStory(@Param('id') id: string) {
+    return this.storiesService.getStory(id);
   }
   //we need (something like cron job for archiving the stories)
 }
