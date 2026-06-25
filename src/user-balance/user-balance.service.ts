@@ -7,7 +7,6 @@ export class UserBalanceService {
   //the logic here is in development mode and will be refactor soon to be more system desing
   constructor(private prismaService: PrismaService) {}
   async findUserBalance(contentId: string, type: REACHED_TYPE_ENUM) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const reached = await this.prismaService.userActionsPricing.findFirst({
       where: { type },
       select: { paymentAmount: true },
@@ -22,7 +21,6 @@ export class UserBalanceService {
     return { myBalance, reached };
   }
   async findUserBalanceChannel(channelId: string, type: REACHED_TYPE_ENUM) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const reached = await this.prismaService.userActionsPricing.findFirst({
       where: { type },
       select: { paymentAmount: true },

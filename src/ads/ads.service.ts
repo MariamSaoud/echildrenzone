@@ -6,10 +6,14 @@ import {
 import { Ads } from './dto/ads.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CONTENT_STATUS_ENUM } from 'generated/prisma/enums';
+import { UserBalanceService } from 'src/user-balance/user-balance.service';
 
 @Injectable()
 export class AdsService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private userBalance: UserBalanceService,
+  ) {}
   async addAds(dto: Ads) {
     const data = await this.prismaService.ads.create({
       data: { ...dto },
@@ -20,7 +24,11 @@ export class AdsService {
   async changeAdsStatus(id: string, status: CONTENT_STATUS_ENUM) {
     const data = await this.prismaService.ads.findUnique({
       where: { id },
-      select: { status: true },
+      select: {
+        status: true,
+        Payment: true,
+        Channel: { select: { creatorId: true } },
+      },
     });
     if (!data) {
       throw new NotFoundException('Not Found!');
@@ -37,6 +45,12 @@ export class AdsService {
       where: { id },
       data: { status },
     });
+    if (status === CONTENT_STATUS_ENUM.APPROVED) {
+      await this.userBalance.withdrawCreator(
+        data.Channel.creatorId,
+        +data.Payment.amountType,
+      );
+    }
     return { updatedData };
   }
 }
