@@ -37,13 +37,13 @@ export class userActionsPricingController {
     return this.userActionsPricingServier.updateReachedTo(id, dto);
   }
   @UseGuards(RolesGuard, IsntBlocked)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.CREATOR)
   @Get()
   getReachedTo(@Query('page') page: number, @Query('limit') limit: number) {
     return this.userActionsPricingServier.getReachedTo(page, limit);
   }
   @UseGuards(RolesGuard, IsntBlocked)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.CREATOR)
   @Get(':id')
   getReachedToDetails(@Param('id') id: string) {
     return this.userActionsPricingServier.getReachedToDetails(id);

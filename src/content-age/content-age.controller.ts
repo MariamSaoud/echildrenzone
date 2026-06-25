@@ -22,13 +22,13 @@ export class ContentAgeController {
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN)
   @Post()
-  createCategory(@Body() dto: AddContentAge) {
+  createContentAge(@Body() dto: AddContentAge) {
     return this.contentAgeService.createContentAge(dto);
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN)
   @Put(':id')
-  updateCategory(
+  updateContentAge(
     @Param('id') contentAgeId: string,
     @Body() dto: UpdateContentAge,
   ) {
@@ -37,19 +37,19 @@ export class ContentAgeController {
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN)
   @Delete(':id')
-  deleteCategory(@Param('id') contentAgeId: string) {
+  deleteContentAge(@Param('id') contentAgeId: string) {
     return this.contentAgeService.deleteContentAge(contentAgeId);
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN, Role.CREATOR)
   @Get()
-  getCategory(@Query('page') page: number, @Query('limit') limit: number) {
+  getContentAges(@Query('page') page: number, @Query('limit') limit: number) {
     return this.contentAgeService.getContentAges(page, limit);
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN, Role.CREATOR)
   @Get(':id')
-  getCategoryDetails(@Param('id') contentAgeId: string) {
+  getContentAgeDetails(@Param('id') contentAgeId: string) {
     return this.contentAgeService.getContentAgeDetails(contentAgeId);
   }
 }
