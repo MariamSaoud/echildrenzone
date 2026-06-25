@@ -77,4 +77,17 @@ export class UserService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return profile;
   }
+  async getChildren(parentId: string) {
+    return await this.prismaService.parentsChildren.findMany({
+      where: { parentId },
+      include: { Child: true },
+    });
+  }
+  async blockUser(id: string) {
+    await this.prismaService.user.update({
+      where: { id },
+      data: { isBlocked: true },
+    });
+    return { message: 'Blocked Successfully!' };
+  }
 }

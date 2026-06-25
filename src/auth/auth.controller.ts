@@ -1,5 +1,5 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { Register } from './dto/register.dto';
+import { Body, Controller, Post, UseGuards, Delete } from '@nestjs/common';
+import { Register, Role } from './dto/register.dto';
 import { AuthService } from './auth.service';
 import { Login } from './dto/login.dto';
 import { MainRequestchooseAccount } from './dto/chooseAccount.dto';
@@ -82,5 +82,13 @@ export class AuthController {
   @Post('forget-password')
   forgetPassword(@Body() dto: forgetPassword) {
     return this.authService.forgetPassword(dto);
+  }
+  @Delete()
+  deleteUser(
+    @GetUser('id') id: string,
+    @GetUser('role') role: Role,
+    @GetAccountId() accId: string,
+  ) {
+    return this.authService.deleteUser(id, role, accId);
   }
 }
