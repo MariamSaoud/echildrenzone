@@ -109,6 +109,7 @@ model ContentAge {
   updatedAt DateTime    @updatedAt
   Content   Content[]
   Playlist  Playlist[]
+  Ads        Ads[]
   @@unique([startAge,endAge])
 }
 
@@ -124,6 +125,7 @@ model Channel {
   Stories   Stories[]
   Content   Content[]
   Playlist  Playlist[]
+  Ads        Ads[]
   Subscriptions Subscription[]
   BlockedChannels BlockedChannel[]
   active    Boolean     @default(true)
@@ -275,6 +277,30 @@ model Views {
   Content     Content     @relation(fields: [contentId], references: [id], onDelete: Cascade)
 } 
 
+
+model AdsPayment {
+  id        String         @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  type      CONTENT_TYPE_ENUM
+  amountType Decimal  
+  Ads        Ads[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  @@unique([type,amountType])
+}
+
+model Ads {
+  id        String         @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  url       String
+  status    CONTENT_STATUS_ENUM @default(PENDING)
+  channelId   String	 @db.Uuid()
+  paymentId     String	 @db.Uuid()
+  contentAgeId   String	 @db.Uuid()
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  Payment   AdsPayment     @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  contentAge ContentAge    @relation(fields: [contentAgeId],references: [id],onDelete: Cascade)
+}
 enum ROLE_ENUM {
   CHILD
   PARENT

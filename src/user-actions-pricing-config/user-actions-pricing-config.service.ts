@@ -10,7 +10,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class userActionsPricingService {
   constructor(private prismaService: PrismaService) {}
   async createReachedTo(dto: AddUserActionsPricing) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const data = await this.prismaService.userActionsPricing.upsert({
       where: { type_currency: { type: dto.type, currency: dto.currency } },
       update: {},
@@ -20,7 +19,6 @@ export class userActionsPricingService {
   }
   async updateReachedTo(id: string, dto: UpdateUserActionsPricing) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       const data = await this.prismaService.userActionsPricing.update({
         where: { id },
         data: { ...dto },
@@ -35,12 +33,10 @@ export class userActionsPricingService {
       throw new BadRequestException('Invalid Data!');
     } else {
       const offset = (page - 1) * limit;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       const data = await this.prismaService.userActionsPricing.findMany({
         take: limit,
         skip: offset,
       });
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       const total = await this.prismaService.userActionsPricing.count();
       return {
         data,
@@ -50,7 +46,6 @@ export class userActionsPricingService {
   }
 
   async getReachedToDetails(id: string) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const data = await this.prismaService.userActionsPricing.findUnique({
       where: { id },
     });

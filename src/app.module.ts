@@ -23,6 +23,8 @@ import { AddToFavModule } from './add-to-fav/add-to-fav.module';
 import { ViewsModule } from './views/views.module';
 import { UserBalanceModule } from './user-balance/user-balance.module';
 import { StoriesModule } from './stories/stories.module';
+import { AdsPaymentModule } from './ads-payment/ads-payment.module';
+import { AdsModule } from './ads/ads.module';
 
 @Module({
   imports: [
@@ -56,6 +58,8 @@ import { StoriesModule } from './stories/stories.module';
     ViewsModule,
     UserBalanceModule,
     StoriesModule,
+    AdsPaymentModule,
+    AdsModule,
   ],
   controllers: [],
   providers: [
