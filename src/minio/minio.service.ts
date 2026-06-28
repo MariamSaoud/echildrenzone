@@ -22,14 +22,25 @@ export class MinioService {
     return { data };
   }
   async uploadFile(file: Express.Multer.File) {
-    const filename = `${uuidv7()}-${file.originalname}`;
     try {
+      let folderName;
+      if (
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg'
+      ) {
+        folderName = 'images';
+      } else {
+        folderName = 'videos';
+      }
+      const filename = `${folderName}/${uuidv7()}-${file.originalname}`;
+
       const objInfo = await this.minioService.putObject(
         this.bucketName,
         filename,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
         file.buffer,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
         file.size,
         { 'Content-Type': file.mimetype },
       );
