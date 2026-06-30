@@ -13,6 +13,7 @@ import { Role } from 'src/auth/dto/register.dto';
 import { Roles } from 'src/decorators/rolesGuard.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { IsntBlocked } from 'src/guards/isntBlocked.guard';
+import { Public } from 'src/decorators/jwt.ispublic.decorator';
 
 @Controller('minio')
 export class MinioController {
@@ -23,7 +24,7 @@ export class MinioController {
   bucketList() {
     return this.minioService.bucketList();
   }
-  @UseGuards(IsntBlocked)
+  @Public()
   @Get(':name')
   getFile(@Param('name') name: string) {
     return this.minioService.getFile(name);

@@ -11,16 +11,12 @@ export class MinioService {
     return await this.minioService.listBuckets();
   }
   async getFile(filename: string) {
-    const stat = await this.minioService.statObject(
-      'echildrenzonephoto',
-      filename,
-    );
-    const mimetype = stat.metaData['content-type'];
     let bucketName;
+    const lowerFilename = filename.toLowerCase();
     if (
-      mimetype === 'image/jpeg' ||
-      mimetype === 'image/png' ||
-      mimetype === 'image/jpg'
+      lowerFilename.endsWith('.jpeg') ||
+      lowerFilename.endsWith('.png') ||
+      lowerFilename.endsWith('.jpg')
     ) {
       bucketName = this.photosBucketName;
     } else {
