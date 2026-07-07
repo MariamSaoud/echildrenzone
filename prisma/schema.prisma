@@ -21,6 +21,7 @@ model User{
   isBlocked Boolean     @default(false)
   accountId String      @db.Uuid()
   pin       String?  
+  profileUrl String?
   deletedAt DateTime?   
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt

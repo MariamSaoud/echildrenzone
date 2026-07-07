@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { AddFamily } from './dto/addFamily.dto';
 import { RolesGuard } from 'src/guards/roles.guard';
-import { Register, Role } from '../auth/dto/register.dto';
+import { Register, Role, UpdateProfile } from '../auth/dto/register.dto';
 import { Roles } from 'src/decorators/rolesGuard.decorator';
 import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { hasPIN } from 'src/guards/hasPin.guard';
@@ -22,6 +22,11 @@ export class UserController {
   @Get()
   profile(@GetUser('id') userId: string, @GetUser('role') role: Role) {
     return this.userService.getProfile(userId, role);
+  }
+  @UseGuards(RolesGuard, IsntBlocked)
+  @Post('admin')
+  updateProfile(@GetUser('id') userId: string, @Body() dto: UpdateProfile) {
+    return this.userService.updateProfile(userId, dto);
   }
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard, IsntBlocked)

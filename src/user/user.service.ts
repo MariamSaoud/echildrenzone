@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Register, Role } from 'src/auth/dto/register.dto';
+import { Register, Role, UpdateProfile } from 'src/auth/dto/register.dto';
 import * as argon from 'argon2';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RedisService } from 'src/redis/redis.service';
@@ -89,5 +89,12 @@ export class UserService {
       data: { isBlocked: true },
     });
     return { message: 'Blocked Successfully!' };
+  }
+  async updateProfile(id: string, dto: UpdateProfile) {
+    await this.prismaService.user.update({
+      where: { id },
+      data: { ...dto },
+    });
+    return { message: 'Updated Successfully!' };
   }
 }
