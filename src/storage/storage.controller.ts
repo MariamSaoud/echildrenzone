@@ -7,7 +7,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { MinioService } from './minio.service';
+import { StorageService } from './storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Role } from 'src/auth/dto/register.dto';
 import { Roles } from 'src/decorators/rolesGuard.decorator';
@@ -16,24 +16,24 @@ import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { Public } from 'src/decorators/jwt.ispublic.decorator';
 
 @Controller('minio')
-export class MinioController {
-  constructor(private minioService: MinioService) {}
+export class StorageController {
+  constructor(private storageService: StorageService) {}
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.ADMIN)
   @Get('bucket')
   bucketList() {
-    return this.minioService.bucketList();
+    return this.storageService.bucketList();
   }
   @Public()
   @Get(':name')
   getFile(@Param('name') name: string) {
-    return this.minioService.getFile(name);
+    return this.storageService.getFile(name);
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.CREATOR)
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(@UploadedFile('file') file: Express.Multer.File) {
-    return this.minioService.uploadFile(file);
+    return this.storageService.uploadFile(file);
   }
 }

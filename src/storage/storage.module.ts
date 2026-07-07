@@ -1,12 +1,12 @@
 import { BadRequestException, Module } from '@nestjs/common';
-import { MinioController } from './minio.controller';
-import { MinioProvider } from './minio.provider';
-import { MinioService } from './minio.service';
+import { MinioProvider } from './storage.provider';
 import { MulterModule } from '@nestjs/platform-express';
+import { StorageController } from './storage.controller';
+import { StorageService } from './storage.service';
 
 @Module({
-  controllers: [MinioController],
-  providers: [MinioProvider, MinioService],
+  controllers: [StorageController],
+  providers: [MinioProvider, StorageService],
   exports: [MinioProvider],
   imports: [
     MulterModule.register({
@@ -31,4 +31,4 @@ import { MulterModule } from '@nestjs/platform-express';
     }),
   ],
 })
-export class MinioModule {}
+export class StorageModule {}

@@ -25,7 +25,7 @@ import { UserBalanceModule } from './user-balance/user-balance.module';
 import { StoriesModule } from './stories/stories.module';
 import { AdsPaymentModule } from './ads-payment/ads-payment.module';
 import { AdsModule } from './ads/ads.module';
-import { MinioModule } from './minio/minio.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -61,7 +61,7 @@ import { MinioModule } from './minio/minio.module';
     StoriesModule,
     AdsPaymentModule,
     AdsModule,
-    MinioModule,
+    StorageModule,
   ],
   controllers: [],
   providers: [

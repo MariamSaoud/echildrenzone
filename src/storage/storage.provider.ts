@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import { minioToken } from './minio.decorator';
+import { minioToken } from './storage.decorator';
 import * as Minio from 'minio';
 
 export const MinioProvider = {

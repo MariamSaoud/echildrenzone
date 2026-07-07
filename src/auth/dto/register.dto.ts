@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsDate,
@@ -31,6 +32,9 @@ export class Register {
   @IsNotEmpty()
   @IsString()
   role: Role;
+  @IsOptional()
+  @IsString()
+  profileUrl: string;
 }
 export enum gender {
   FEMALE = 'FEMALE',
@@ -42,3 +46,4 @@ export enum Role {
   PARENT = 'PARENT',
   CHILD = 'CHILD',
 }
+export class UpdateProfile extends PartialType(Register) {}

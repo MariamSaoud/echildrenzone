@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { InjectMinio } from './minio.decorator';
+import { InjectMinio } from './storage.decorator';
 import * as Minio from 'minio';
 import { uuidv7 } from 'uuidv7';
 @Injectable()
-export class MinioService {
+export class StorageService {
   protected photosBucketName = 'echildrenzonephoto';
   protected videosBucketName = 'echildrenzonevideo';
   constructor(@InjectMinio() private readonly minioService: Minio.Client) {}
