@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UserBalanceService } from 'src/user-balance/user-balance.service';
 
 @Injectable()
-export class AddToFavService {
+export class FavoritesService {
   constructor(
     private prismaService: PrismaService,
     private userBalance: UserBalanceService,

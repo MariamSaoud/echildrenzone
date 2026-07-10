@@ -19,7 +19,7 @@ import { ContentModule } from './content/content.module';
 import { ContentTfQuestionsModule } from './content-tf-questions/content-tf-questions.module';
 import { ReactionModule } from './reaction/reaction.module';
 import { CommentModule } from './comment/comment.module';
-import { AddToFavModule } from './add-to-fav/add-to-fav.module';
+import { FavoritesModule } from './favorites/favorites.module';
 import { ViewsModule } from './views/views.module';
 import { UserBalanceModule } from './user-balance/user-balance.module';
 import { StoriesModule } from './stories/stories.module';
@@ -55,7 +55,7 @@ import { StorageModule } from './storage/storage.module';
     ContentTfQuestionsModule,
     ReactionModule,
     CommentModule,
-    AddToFavModule,
+    FavoritesModule,
     ViewsModule,
     UserBalanceModule,
     StoriesModule,

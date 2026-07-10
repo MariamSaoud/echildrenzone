@@ -3,12 +3,12 @@ import { Role } from 'src/auth/dto/register.dto';
 import { Roles } from 'src/decorators/rolesGuard.decorator';
 import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
-import { AddToFavService } from './add-to-fav.service';
+import { FavoritesService } from './favorites.service';
 import { GetUser } from 'src/decorators/getUser.decorator';
 
 @Controller('add-to-fav')
-export class AddToFavController {
-  constructor(private addToFavService: AddToFavService) {}
+export class FavoritesController {
+  constructor(private addToFavService: FavoritesService) {}
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.CHILD)
   @Post()
