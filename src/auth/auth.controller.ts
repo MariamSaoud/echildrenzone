@@ -83,7 +83,7 @@ export class AuthController {
   forgetPassword(@Body() dto: forgetPassword) {
     return this.authService.forgetPassword(dto);
   }
-  @Delete()
+  @Delete('account')
   deleteUser(
     @GetUser('id') id: string,
     @GetUser('role') role: Role,

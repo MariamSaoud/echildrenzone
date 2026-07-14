@@ -26,6 +26,7 @@ import { StoriesModule } from './stories/stories.module';
 import { AdsPaymentModule } from './ads-payment/ads-payment.module';
 import { AdsModule } from './ads/ads.module';
 import { StorageModule } from './storage/storage.module';
+import { VideosModule } from './videos/videos.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { StorageModule } from './storage/storage.module';
     AdsPaymentModule,
     AdsModule,
     StorageModule,
+    VideosModule,
   ],
   controllers: [],
   providers: [
