@@ -6,12 +6,13 @@ import { uuidv7 } from 'uuidv7';
 export class StorageService {
   protected photosBucketName = 'echildrenzonephoto';
   protected videosBucketName = 'echildrenzonevideo';
+  protected ffmpegBucketName = 'echildrenzoneffmpeg';
   constructor(@InjectMinio() private readonly minioService: Minio.Client) {}
   async bucketList() {
     return await this.minioService.listBuckets();
   }
   async getFile(filename: string) {
-    let bucketName;
+    let bucketName: string;
     const lowerFilename = filename.toLowerCase();
     if (
       lowerFilename.endsWith('.jpeg') ||
@@ -19,12 +20,14 @@ export class StorageService {
       lowerFilename.endsWith('.jpg')
     ) {
       bucketName = this.photosBucketName;
-    } else {
+    } else if (lowerFilename.endsWith('.mp4')) {
       bucketName = this.videosBucketName;
+    } else {
+      bucketName = this.ffmpegBucketName;
     }
     const data = await this.minioService.presignedUrl(
       'GET',
-      bucketName as string,
+      bucketName,
       filename,
       24 * 60 * 60,
       {

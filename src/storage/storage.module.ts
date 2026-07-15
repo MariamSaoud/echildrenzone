@@ -7,7 +7,7 @@ import { StorageService } from './storage.service';
 @Module({
   controllers: [StorageController],
   providers: [MinioProvider, StorageService],
-  exports: [MinioProvider],
+  exports: [MinioProvider, StorageService],
   imports: [
     MulterModule.register({
       limits: {
