@@ -25,9 +25,10 @@ export class StorageController {
     return this.storageService.bucketList();
   }
   @Public()
-  @Get(':name')
-  getFile(@Param('name') name: string) {
-    return this.storageService.getFile(name);
+  @Get('*name')
+  getFile(@Param('name') name: string | string[]) {
+    const formattedPath = Array.isArray(name) ? name.join('/') : name;
+    return this.storageService.getFile(formattedPath);
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.CREATOR)
