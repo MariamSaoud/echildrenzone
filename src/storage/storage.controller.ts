@@ -14,6 +14,7 @@ import { Roles } from 'src/decorators/rolesGuard.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { Public } from 'src/decorators/jwt.ispublic.decorator';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('minio')
 export class StorageController {
@@ -33,6 +34,18 @@ export class StorageController {
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.CREATOR)
   @Post('upload')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(@UploadedFile('file') file: Express.Multer.File) {
     return this.storageService.uploadFile(file);
