@@ -50,7 +50,7 @@ export class VideosService {
           .saveToFile(outputPath);
       });
       const files = await fs.readdir(folderDir);
-
+      let masterPlaylistPath;
       for (const file of files) {
         const filePath = path.join(folderDir, file);
         const fileStream = fsNormal.createReadStream(filePath);
@@ -69,8 +69,19 @@ export class VideosService {
           stat.size,
           { 'Content-Type': contentType },
         );
+        if (file.endsWith('.m3u8')) {
+          const data = await this.minioClient.presignedUrl(
+            'GET',
+            'echildrenzoneffmpeg',
+            objectName,
+            24 * 60 * 60,
+            {
+              'response-content-disposition': 'inline',
+            },
+          );
+          masterPlaylistPath = data;
+        }
       }
-      const masterPlaylistPath = `${video.filename}/${outputFileName}`;
       return {
         bucket: 'echildrenzoneffmpeg',
         playlistPath: masterPlaylistPath,
