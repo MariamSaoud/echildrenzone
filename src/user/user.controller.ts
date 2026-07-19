@@ -52,7 +52,7 @@ export class UserController {
   }
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard, IsntBlocked)
-  @Patch(':id')
+  @Patch('block/:id')
   blockUser(@Param('id') id: string) {
     return this.userService.blockUser(id);
   }

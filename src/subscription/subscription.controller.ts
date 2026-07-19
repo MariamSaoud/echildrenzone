@@ -5,6 +5,7 @@ import { Roles } from 'src/decorators/rolesGuard.decorator';
 import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { SubscriptionService } from './subscription.service';
+import { ApiBody, ApiOperation, ApiParam } from '@nestjs/swagger';
 
 @Controller('subscription')
 export class SubscriptionController {
@@ -12,6 +13,22 @@ export class SubscriptionController {
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.CHILD)
   @Post()
+  @ApiOperation({
+    summary: 'Toggle channel subscription for the logged-in child',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        channelId: {
+          type: 'string',
+          example: '123e4567-e89b-12d3-a456-426614174000',
+          description: 'The ID of the channel to subscribe/unsubscribe',
+        },
+      },
+      required: ['channelId'],
+    },
+  })
   toggleChannelSubscription(
     @GetUser('id') childId: string,
     @Body('channelId') channelId: string,
@@ -36,6 +53,12 @@ export class SubscriptionController {
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.PARENT)
   @Post('parent/:id')
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    description: 'The ID of the child account',
+    example: 'child-uuid-123',
+  })
   toggleChannelChildSubscription(
     @Param('id') childId: string,
     @Body('channelId') channelId: string,
