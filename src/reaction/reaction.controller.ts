@@ -13,8 +13,9 @@ import { Role } from 'src/auth/dto/register.dto';
 import { Roles } from 'src/decorators/rolesGuard.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { IsntBlocked } from 'src/guards/isntBlocked.guard';
-import { ApiBody, ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('reaction')
 export class ReactionController {
   constructor(private reactionService: ReactionService) {}

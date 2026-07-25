@@ -16,6 +16,9 @@ import { hasPIN } from 'src/guards/hasPin.guard';
 import { GetAccountId } from 'src/decorators/getAccountId.decorator';
 import { GetUser } from 'src/decorators/getUser.decorator';
 import { UserService } from './user.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
+
+@ApiBearerAuth('access-token')
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}

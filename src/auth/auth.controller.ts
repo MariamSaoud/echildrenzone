@@ -15,6 +15,7 @@ import { GetAccountId } from 'src/decorators/getAccountId.decorator';
 import { Send } from 'src/email-sender/dto/send.dto';
 import { Verify } from 'src/email-sender/dto/verify.dto';
 import { forgetPassword } from './dto/forgetPassword.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -55,10 +56,13 @@ export class AuthController {
   ) {
     return this.authService.changePassword(id, dto);
   }
+
+  @ApiBearerAuth('access-token')
   @Post('logout')
   logout(@GetAuthId() authId: string) {
     return this.authService.logout({ authId });
   }
+  @ApiBearerAuth('access-token')
   @Post('logout-all')
   logoutAll(@GetAccountId() accountId: string) {
     return this.authService.logoutAll({ accountId });
@@ -83,6 +87,7 @@ export class AuthController {
   forgetPassword(@Body() dto: forgetPassword) {
     return this.authService.forgetPassword(dto);
   }
+  @ApiBearerAuth('access-token')
   @Delete('account')
   deleteUser(
     @GetUser('id') id: string,

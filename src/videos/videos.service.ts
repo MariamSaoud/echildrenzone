@@ -45,13 +45,14 @@ export class VideosService {
     if (video.mimetype !== 'video/mp4') {
       throw new BadRequestException('Must Be Video!');
     }
-
-    const inputPath = path.join(process.cwd(), 'tmp', video.filename);
-    const folderDir = path.join(process.cwd(), 'tmp', `${video.filename}_hls`);
+    const tmpDir = path.join(process.cwd(), 'tmp');
+    const safeFileName = `${Date.now()}-video`;
+    const inputPath = path.join(tmpDir, `${safeFileName}.mp4`);
+    const folderDir = path.join(tmpDir, `${safeFileName}_hls`);
 
     try {
       await fs.mkdir(folderDir, { recursive: true });
-
+      await fs.writeFile(inputPath, video.buffer);
       const conversionPromises = RESOLUTIONS.map(async (res) => {
         const resFolder = path.join(folderDir, res.name);
 
@@ -111,7 +112,7 @@ export class VideosService {
                 ? 'video/MP2T'
                 : 'application/octet-stream';
 
-            const objectName = `${video.filename}/${relativePath}`;
+            const objectName = `${safeFileName}/${relativePath}`;
             await this.minioClient.putObject(
               'echildrenzoneffmpeg',
               objectName,
@@ -125,7 +126,7 @@ export class VideosService {
 
       await uploadFiles(folderDir, folderDir);
 
-      const masterObjectName = `${video.filename}/${masterFileName}`;
+      const masterObjectName = `${safeFileName}/${masterFileName}`; //should be stored in DB
       const masterPlaylistUrl = await this.minioClient.presignedUrl(
         'GET',
         'echildrenzoneffmpeg',
@@ -136,6 +137,7 @@ export class VideosService {
 
       return {
         bucket: 'echildrenzoneffmpeg',
+        masterObjectName,
         playlistPath: masterPlaylistUrl,
       };
     } catch (error) {

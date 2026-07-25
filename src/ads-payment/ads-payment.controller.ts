@@ -14,7 +14,9 @@ import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { AdsPaymentService } from './ads-payment.service';
 import { CreateAdsPayment, UpdateAdsPayment } from './dto/adsPayment.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('ads-payment')
 export class AdsPaymentController {
   constructor(private adsPaymentService: AdsPaymentService) {}

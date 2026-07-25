@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Role } from 'src/auth/dto/register.dto';
 import { Roles } from 'src/decorators/rolesGuard.decorator';
@@ -19,15 +20,40 @@ import {
   UpdateStories,
 } from './dto/stories.dto';
 import { GetUser } from 'src/decorators/getUser.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiExtraModels,
+  getSchemaPath,
+} from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
+@ApiExtraModels(AddStories)
 @Controller('stories')
 export class StoriesController {
   constructor(private storiesService: StoriesService) {}
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.CREATOR)
+  @UseInterceptors(FileInterceptor('file'))
   @Post()
-  addStory(@Body() dto: AddStories) {
-    return this.storiesService.addStory(dto);
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(AddStories) },
+        {
+          type: 'object',
+          properties: {
+            file: { type: 'string', format: 'binary' },
+          },
+        },
+      ],
+    },
+  })
+  addStory(@Body() dto: AddStories, file: Express.Multer.File) {
+    return this.storiesService.addStory(dto, file);
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.CREATOR)

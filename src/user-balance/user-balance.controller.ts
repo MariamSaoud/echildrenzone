@@ -5,8 +5,9 @@ import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { UserBalanceService } from './user-balance.service';
 import { GetUser } from 'src/decorators/getUser.decorator';
-import { ApiBody, ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('user-balance')
 export class UserBalanceController {
   constructor(private userBalanceService: UserBalanceService) {}

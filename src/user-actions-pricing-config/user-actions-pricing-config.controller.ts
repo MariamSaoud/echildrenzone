@@ -17,7 +17,9 @@ import {
   AddUserActionsPricing,
   UpdateUserActionsPricing,
 } from './dto/user-actions-pricing-config';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('reached-to-content')
 export class userActionsPricingController {
   constructor(private userActionsPricingServier: userActionsPricingService) {}

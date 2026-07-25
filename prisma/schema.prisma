@@ -154,7 +154,8 @@ model Content {
   id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
   description String?
   type      CONTENT_TYPE_ENUM @default(PHOTO)
-  url       String
+  url       String?
+  hlsurl    String?
   status    CONTENT_STATUS_ENUM @default(PENDING)
   rejectedReason String?
   playlistId  String?          @db.Uuid()
@@ -191,7 +192,8 @@ model Content_TF_Questions {
 
 model Stories {
   id        String      @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
-  url       String
+  url       String?
+  hlsurl    String?
   status    CONTENT_STATUS_ENUM @default(PENDING)
   description String?
   contentRecord String? @db.Uuid()
@@ -291,7 +293,8 @@ model AdsPayment {
 
 model Ads {
   id        String         @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
-  url       String
+  url       String?
+  hlsurl    String?
   status    CONTENT_STATUS_ENUM @default(PENDING)
   channelId   String	 @db.Uuid()
   paymentId     String	 @db.Uuid()

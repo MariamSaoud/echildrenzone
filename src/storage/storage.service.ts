@@ -20,10 +20,10 @@ export class StorageService {
       lowerFilename.endsWith('.jpg')
     ) {
       bucketName = this.photosBucketName;
-    } else if (lowerFilename.endsWith('.mp4')) {
-      bucketName = this.videosBucketName;
-    } else {
+    } else if (lowerFilename.endsWith('.m3u8')) {
       bucketName = this.ffmpegBucketName;
+    } else {
+      bucketName = this.videosBucketName;
     }
     const data = await this.minioService.presignedUrl(
       'GET',
@@ -50,7 +50,7 @@ export class StorageService {
       }
       const filename = `${uuidv7()}-${file.originalname}`;
 
-      const objInfo = await this.minioService.putObject(
+      await this.minioService.putObject(
         bucketName as string,
         filename,
 
@@ -59,7 +59,7 @@ export class StorageService {
         file.size,
         { 'Content-Type': file.mimetype },
       );
-      return objInfo;
+      return filename;
     } catch (error) {
       throw new Error(`MinIO Upload Failed: ${error.message}`);
     }

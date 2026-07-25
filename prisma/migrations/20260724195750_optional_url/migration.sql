@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "Ads" ALTER COLUMN "url" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "Content" ALTER COLUMN "url" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "Stories" ALTER COLUMN "url" DROP NOT NULL;

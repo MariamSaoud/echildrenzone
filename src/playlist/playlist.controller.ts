@@ -15,7 +15,9 @@ import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { AddPlaylist, updatePlaylist } from './dto/playlist.dto';
 import { PlaylistService } from './playlist.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('playlist')
 export class PlaylistController {
   constructor(private playlistService: PlaylistService) {}

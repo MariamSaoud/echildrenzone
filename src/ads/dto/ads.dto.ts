@@ -1,15 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsUUID } from 'class-validator';
 
 export class Ads {
-  @ApiProperty({
-    description: 'The URL of the advertisement',
-    example: 'https://example.com/ad-banner.png',
-  })
-  @IsNotEmpty()
-  @IsString()
-  url: string;
-
   @ApiProperty({
     description: 'The UUID (version 7) of the channel',
     example: '018f43a2-7d8a-7b3f-8a1a-2b3c4d5e6f7a',

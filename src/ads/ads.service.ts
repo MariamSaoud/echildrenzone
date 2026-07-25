@@ -7,18 +7,38 @@ import { Ads } from './dto/ads.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CONTENT_STATUS_ENUM } from 'generated/prisma/enums';
 import { UserBalanceService } from 'src/user-balance/user-balance.service';
+import { VideosService } from 'src/videos/videos.service';
+import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()
 export class AdsService {
   constructor(
     private prismaService: PrismaService,
     private userBalance: UserBalanceService,
+    private videosService: VideosService,
+    private storageService: StorageService,
   ) {}
-  async addAds(dto: Ads) {
-    const data = await this.prismaService.ads.create({
+  async addAds(dto: Ads, file: Express.Multer.File) {
+    const myAds = await this.prismaService.ads.create({
       data: { ...dto },
       include: { Payment: true },
     });
+    let data;
+    const myurl = await this.storageService.uploadFile(file);
+    if (file.mimetype === 'video/mp4') {
+      const myVideo = await this.videosService.convertVideo(file);
+      data = await this.prismaService.content.update({
+        data: { hlsurl: myVideo.masterObjectName, url: myurl },
+        where: { id: myAds.id },
+      });
+      return { data, presignUrl: myVideo.playlistPath };
+    } else {
+      data = await this.prismaService.content.update({
+        data: { url: myurl },
+        where: { id: myAds.id },
+      });
+      return { data };
+    }
     return { data };
   }
   async changeAdsStatus(id: string, status: CONTENT_STATUS_ENUM) {

@@ -12,18 +12,42 @@ import {
   CreateContent,
   UpdateContent,
 } from './dto/content.dto';
+import { VideosService } from 'src/videos/videos.service';
+import { StorageService } from 'src/storage/storage.service';
 @Injectable()
 export class ContentService {
-  constructor(private prismaService: PrismaService) {}
-  async createContent(dto: CreateContent) {
+  constructor(
+    private prismaService: PrismaService,
+    private videosService: VideosService,
+    private storageService: StorageService,
+  ) {}
+  async createContent(dto: CreateContent, file: Express.Multer.File) {
     await this.findElements(
       dto.channelId,
       dto.categoryId,
       dto.contentAgeId,
       dto.playlistId,
     );
-    const data = await this.prismaService.content.create({ data: { ...dto } });
-    return { data };
+
+    const myContent = await this.prismaService.content.create({
+      data: { ...dto },
+    });
+    let data;
+    const myurl = await this.storageService.uploadFile(file);
+    if (file.mimetype === 'video/mp4') {
+      const myVideo = await this.videosService.convertVideo(file);
+      data = await this.prismaService.content.update({
+        data: { hlsurl: myVideo.masterObjectName, url: myurl },
+        where: { id: myContent.id },
+      });
+      return { data, presignUrl: myVideo.playlistPath };
+    } else {
+      data = await this.prismaService.content.update({
+        data: { url: myurl },
+        where: { id: myContent.id },
+      });
+      return { data };
+    }
   }
   async updateContent(creatorId: string, id: string, dto: UpdateContent) {
     await this.IsCreator(id, creatorId);

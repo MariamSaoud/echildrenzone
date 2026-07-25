@@ -5,8 +5,14 @@ import { Roles } from 'src/decorators/rolesGuard.decorator';
 import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { SubscriptionService } from './subscription.service';
-import { ApiBody, ApiOperation, ApiParam } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+} from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('subscription')
 export class SubscriptionController {
   constructor(private subscriptionService: SubscriptionService) {}

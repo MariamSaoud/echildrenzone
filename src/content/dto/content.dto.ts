@@ -1,4 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
@@ -38,14 +39,6 @@ export class CreateContent {
   type: CONTENT_TYPE_ENUM;
 
   @ApiProperty({
-    description: 'The direct storage or cloud link URL of the file',
-    example: 'https://cdn.example.com/videos/typescript-guide.mp4',
-  })
-  @IsNotEmpty()
-  @IsString()
-  url: string;
-
-  @ApiProperty({
     description:
       'The UUID (version 7) of the playlist this content belongs to (if any)',
     example: '018f43a2-7d8a-7b3f-8a1a-2b3c4d5e6f7a',
@@ -53,6 +46,8 @@ export class CreateContent {
   })
   @IsOptional()
   @IsUUID(7)
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  @Transform(({ value }) => (value === '' ? null : value))
   playlistId?: string;
 
   @ApiProperty({

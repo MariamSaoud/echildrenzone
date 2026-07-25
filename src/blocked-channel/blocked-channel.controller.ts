@@ -5,8 +5,9 @@ import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { BlockedChannelService } from './blocked-channel.service';
 import { GetUser } from 'src/decorators/getUser.decorator';
-import { ApiBody, ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('blocked-channel')
 export class BlockedChannelController {
   constructor(private blockedChannelService: BlockedChannelService) {}
