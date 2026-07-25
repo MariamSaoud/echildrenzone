@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -52,7 +53,7 @@ export class StoriesController {
       ],
     },
   })
-  addStory(@Body() dto: AddStories, file: Express.Multer.File) {
+  addStory(@Body() dto: AddStories, @UploadedFile() file: Express.Multer.File) {
     return this.storiesService.addStory(dto, file);
   }
   @UseGuards(RolesGuard, IsntBlocked)

@@ -27,13 +27,13 @@ export class StoriesService {
     const myurl = await this.storageService.uploadFile(file);
     if (file.mimetype === 'video/mp4') {
       const myVideo = await this.videosService.convertVideo(file);
-      data = await this.prismaService.content.update({
+      data = await this.prismaService.stories.update({
         data: { hlsurl: myVideo.masterObjectName, url: myurl },
         where: { id: myStory.id },
       });
       return { data, presignUrl: myVideo.playlistPath };
     } else {
-      data = await this.prismaService.content.update({
+      data = await this.prismaService.stories.update({
         data: { url: myurl },
         where: { id: myStory.id },
       });

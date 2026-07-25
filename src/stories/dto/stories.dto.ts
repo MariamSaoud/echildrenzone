@@ -1,4 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
@@ -9,18 +10,12 @@ import {
 
 export class AddStories {
   @ApiProperty({
-    description: 'The direct storage or cloud URL link of the story media file',
-    example: 'https://cdn.example.com/stories/day-one.mp4',
-  })
-  @IsNotEmpty()
-  @IsString()
-  url: string;
-
-  @ApiProperty({
     description: 'Optional caption or text description for the story',
     example: 'Behind the scenes looks!',
     required: false,
   })
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  @Transform(({ value }) => (value === '' ? null : value))
   @IsOptional()
   @IsString()
   description?: string;
@@ -31,6 +26,8 @@ export class AddStories {
     example: '018f43a2-7d8a-7b3f-8a1a-2b3c4d5e6f7a',
     required: false,
   })
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  @Transform(({ value }) => (value === '' ? null : value))
   @IsOptional()
   @IsUUID(7)
   contentRecord?: string;

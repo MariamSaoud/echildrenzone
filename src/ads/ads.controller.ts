@@ -30,6 +30,7 @@ export class AdsController {
   constructor(private adsService: AdsService) {}
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.CREATOR)
+  @UseInterceptors(FileInterceptor('file'))
   @Post()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -45,8 +46,7 @@ export class AdsController {
       ],
     },
   })
-  @UseInterceptors(FileInterceptor('file'))
-  addAds(@Body() dto: Ads, @UploadedFile('file') file: Express.Multer.File) {
+  addAds(@Body() dto: Ads, @UploadedFile() file: Express.Multer.File) {
     return this.adsService.addAds(dto, file);
   }
   @UseGuards(RolesGuard, IsntBlocked)

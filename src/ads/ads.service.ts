@@ -27,13 +27,13 @@ export class AdsService {
     const myurl = await this.storageService.uploadFile(file);
     if (file.mimetype === 'video/mp4') {
       const myVideo = await this.videosService.convertVideo(file);
-      data = await this.prismaService.content.update({
+      data = await this.prismaService.ads.update({
         data: { hlsurl: myVideo.masterObjectName, url: myurl },
         where: { id: myAds.id },
       });
       return { data, presignUrl: myVideo.playlistPath };
     } else {
-      data = await this.prismaService.content.update({
+      data = await this.prismaService.ads.update({
         data: { url: myurl },
         where: { id: myAds.id },
       });
