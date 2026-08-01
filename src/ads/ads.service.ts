@@ -7,39 +7,32 @@ import { Ads } from './dto/ads.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CONTENT_STATUS_ENUM } from 'generated/prisma/enums';
 import { UserBalanceService } from 'src/user-balance/user-balance.service';
-import { VideosService } from 'src/videos/videos.service';
-import { StorageService } from 'src/storage/storage.service';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class AdsService {
   constructor(
     private prismaService: PrismaService,
     private userBalance: UserBalanceService,
-    private videosService: VideosService,
-    private storageService: StorageService,
+    @InjectQueue('ads') private adsQueue: Queue,
   ) {}
   async addAds(dto: Ads, file: Express.Multer.File) {
     const myAds = await this.prismaService.ads.create({
       data: { ...dto },
       include: { Payment: true },
     });
-    let data;
-    const myurl = await this.storageService.uploadFile(file);
+    await this.adsQueue.add('uploadFile', {
+      file,
+      adsId: myAds.id,
+    });
     if (file.mimetype === 'video/mp4') {
-      const myVideo = await this.videosService.convertVideo(file);
-      data = await this.prismaService.ads.update({
-        data: { hlsurl: myVideo.masterObjectName, url: myurl },
-        where: { id: myAds.id },
+      await this.adsQueue.add('convertVideo', {
+        file,
+        adsId: myAds.id,
       });
-      return { data, presignUrl: myVideo.playlistPath };
-    } else {
-      data = await this.prismaService.ads.update({
-        data: { url: myurl },
-        where: { id: myAds.id },
-      });
-      return { data };
     }
-    return { data };
+    return { myAds };
   }
   async changeAdsStatus(id: string, status: CONTENT_STATUS_ENUM) {
     const data = await this.prismaService.ads.findUnique({

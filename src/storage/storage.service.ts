@@ -49,12 +49,15 @@ export class StorageService {
         bucketName = this.videosBucketName;
       }
       const filename = `${uuidv7()}-${file.originalname}`;
-
+      const rawData = file?.buffer || file;
+      const fileBuffer = Buffer.isBuffer(rawData)
+        ? rawData
+        : Buffer.from((rawData as any)?.data || rawData);
       await this.minioService.putObject(
         bucketName as string,
         filename,
 
-        file.buffer,
+        fileBuffer,
 
         file.size,
         { 'Content-Type': file.mimetype },

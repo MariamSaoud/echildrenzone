@@ -12,14 +12,13 @@ import {
   CreateContent,
   UpdateContent,
 } from './dto/content.dto';
-import { VideosService } from 'src/videos/videos.service';
-import { StorageService } from 'src/storage/storage.service';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 @Injectable()
 export class ContentService {
   constructor(
     private prismaService: PrismaService,
-    private videosService: VideosService,
-    private storageService: StorageService,
+    @InjectQueue('content') private contentQueue: Queue,
   ) {}
   async createContent(dto: CreateContent, file: Express.Multer.File) {
     await this.findElements(
@@ -32,22 +31,17 @@ export class ContentService {
     const myContent = await this.prismaService.content.create({
       data: { ...dto },
     });
-    let data;
-    const myurl = await this.storageService.uploadFile(file);
+    await this.contentQueue.add('uploadFile', {
+      file,
+      contentId: myContent.id,
+    });
     if (file.mimetype === 'video/mp4') {
-      const myVideo = await this.videosService.convertVideo(file);
-      data = await this.prismaService.content.update({
-        data: { hlsurl: myVideo.masterObjectName, url: myurl },
-        where: { id: myContent.id },
+      await this.contentQueue.add('convertVideo', {
+        file,
+        contentId: myContent.id,
       });
-      return { data, presignUrl: myVideo.playlistPath };
-    } else {
-      data = await this.prismaService.content.update({
-        data: { url: myurl },
-        where: { id: myContent.id },
-      });
-      return { data };
     }
+    return { myContent };
   }
   async updateContent(creatorId: string, id: string, dto: UpdateContent) {
     await this.IsCreator(id, creatorId);

@@ -52,7 +52,11 @@ export class VideosService {
 
     try {
       await fs.mkdir(folderDir, { recursive: true });
-      await fs.writeFile(inputPath, video.buffer);
+      const videoBuffer = Buffer.isBuffer(video.buffer)
+        ? video.buffer
+        : Buffer.from((video.buffer as any)?.data || video.buffer);
+
+      await fs.writeFile(inputPath, videoBuffer);
       const conversionPromises = RESOLUTIONS.map(async (res) => {
         const resFolder = path.join(folderDir, res.name);
 
