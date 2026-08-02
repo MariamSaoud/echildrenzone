@@ -16,7 +16,9 @@ import { Roles } from 'src/decorators/rolesGuard.decorator';
 import { Role } from 'src/auth/dto/register.dto';
 import { GetUser } from 'src/decorators/getUser.decorator';
 import { AddComment, UpdateComment } from './dto/comment.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('comment')
 export class CommentController {
   constructor(private commentService: CommentService) {}

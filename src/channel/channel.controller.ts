@@ -17,7 +17,9 @@ import { RolesGuard } from 'src/guards/roles.guard';
 import { ChannelService } from './channel.service';
 import { CreateChannel, ToggleChannel, UpdateChannel } from './dto/channel.dto';
 import { GetUser } from 'src/decorators/getUser.decorator';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('channel')
 export class ChannelController {
   constructor(private channelService: ChannelService) {}

@@ -6,12 +6,13 @@ import { uuidv7 } from 'uuidv7';
 export class StorageService {
   protected photosBucketName = 'echildrenzonephoto';
   protected videosBucketName = 'echildrenzonevideo';
+  protected ffmpegBucketName = 'echildrenzoneffmpeg';
   constructor(@InjectMinio() private readonly minioService: Minio.Client) {}
   async bucketList() {
     return await this.minioService.listBuckets();
   }
   async getFile(filename: string) {
-    let bucketName;
+    let bucketName: string;
     const lowerFilename = filename.toLowerCase();
     if (
       lowerFilename.endsWith('.jpeg') ||
@@ -19,12 +20,14 @@ export class StorageService {
       lowerFilename.endsWith('.jpg')
     ) {
       bucketName = this.photosBucketName;
+    } else if (lowerFilename.endsWith('.m3u8')) {
+      bucketName = this.ffmpegBucketName;
     } else {
       bucketName = this.videosBucketName;
     }
     const data = await this.minioService.presignedUrl(
       'GET',
-      bucketName as string,
+      bucketName,
       filename,
       24 * 60 * 60,
       {
@@ -46,17 +49,20 @@ export class StorageService {
         bucketName = this.videosBucketName;
       }
       const filename = `${uuidv7()}-${file.originalname}`;
-
-      const objInfo = await this.minioService.putObject(
+      const rawData = file?.buffer || file;
+      const fileBuffer = Buffer.isBuffer(rawData)
+        ? rawData
+        : Buffer.from((rawData as any)?.data || rawData);
+      await this.minioService.putObject(
         bucketName as string,
         filename,
 
-        file.buffer,
+        fileBuffer,
 
         file.size,
         { 'Content-Type': file.mimetype },
       );
-      return objInfo;
+      return filename;
     } catch (error) {
       throw new Error(`MinIO Upload Failed: ${error.message}`);
     }

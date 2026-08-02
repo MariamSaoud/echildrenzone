@@ -5,7 +5,9 @@ import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { FavoritesService } from './favorites.service';
 import { GetUser } from 'src/decorators/getUser.decorator';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('add-to-fav')
 export class FavoritesController {
   constructor(private addToFavService: FavoritesService) {}

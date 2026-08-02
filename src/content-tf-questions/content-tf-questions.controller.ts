@@ -15,7 +15,9 @@ import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { AddQuestion, UpdateQuestion } from './dto/question.dto';
 import { ContentTfQuestionsService } from './content-tf-questions.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('content-tf-questions')
 export class ContentTfQuestionsController {
   constructor(private contentTfQuestionsService: ContentTfQuestionsService) {}

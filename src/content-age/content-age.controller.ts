@@ -15,7 +15,9 @@ import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { Roles } from 'src/decorators/rolesGuard.decorator';
 import { Role } from 'src/auth/dto/register.dto';
 import { AddContentAge, UpdateContentAge } from './dto/contentAge.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('content-age')
 export class ContentAgeController {
   constructor(private contentAgeService: ContentAgeService) {}

@@ -15,7 +15,9 @@ import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { CategoryService } from './category.service';
 import { AddCategory, updateCategory } from './dto/category.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('category')
 export class CategoryController {
   constructor(private categoryService: CategoryService) {}

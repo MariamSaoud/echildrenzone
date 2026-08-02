@@ -8,7 +8,9 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Role } from 'src/auth/dto/register.dto';
 import { Roles } from 'src/decorators/rolesGuard.decorator';
@@ -21,15 +23,43 @@ import {
 } from './dto/content.dto';
 import { ContentService } from './content.service';
 import { GetUser } from 'src/decorators/getUser.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiExtraModels,
+  getSchemaPath,
+} from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
+@ApiExtraModels(CreateContent)
 @Controller('content')
 export class ContentController {
   constructor(private contentService: ContentService) {}
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.CREATOR)
   @Post()
-  createContent(@Body() dto: CreateContent) {
-    return this.contentService.createContent(dto);
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(CreateContent) },
+        {
+          type: 'object',
+          properties: {
+            file: { type: 'string', format: 'binary' },
+          },
+        },
+      ],
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  createContent(
+    @Body() dto: CreateContent,
+    @UploadedFile('file') file: Express.Multer.File,
+  ) {
+    return this.contentService.createContent(dto, file);
   }
   @UseGuards(RolesGuard, IsntBlocked)
   @Roles(Role.CREATOR)

@@ -6,7 +6,9 @@ import { IsntBlocked } from 'src/guards/isntBlocked.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { AddView } from './dto/views.dto';
 import { ViewsService } from './views.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('views')
 export class ViewsController {
   constructor(private viewsService: ViewsService) {}
