@@ -1,11 +1,12 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { Processor } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { StorageService } from 'src/storage/storage.service';
 import { VideosService } from 'src/videos/videos.service';
+import { WorkerHostProcessor } from 'src/worker-host.process';
 
 @Processor('content')
-export class contentConsumer extends WorkerHost {
+export class contentConsumer extends WorkerHostProcessor {
   constructor(
     private videosService: VideosService,
     private storageService: StorageService,
@@ -15,29 +16,23 @@ export class contentConsumer extends WorkerHost {
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async process(job: Job, token?: string): Promise<any> {
-    if (job.name === 'uploadFile') {
+    if (job.name === 'convertVideo') {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        const uploadData = await this.storageService.uploadFile(job.data.file);
-        await this.prismaService.content.update({
-          data: { url: uploadData },
-          where: { id: job.data.contentId },
-        });
-        return uploadData;
-      } catch (error) {
-        console.error(error);
-        throw error;
-      }
-    } else if (job.name === 'convertVideo') {
-      try {
+        await job.updateProgress(10);
         const convertVideo = await this.videosService.convertVideo(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           job.data.file,
         );
+        await job.updateProgress(75);
         await this.prismaService.content.update({
           data: { hlsurl: convertVideo.masterObjectName },
           where: { id: job.data.contentId },
         });
+        await job.updateProgress(100);
+        return {
+          message: 'Video converted successfully',
+          hlsurl: convertVideo.masterObjectName,
+        };
       } catch (error) {
         console.error(error);
         throw error;

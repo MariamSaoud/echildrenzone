@@ -9,12 +9,14 @@ import { CONTENT_STATUS_ENUM } from 'generated/prisma/enums';
 import { UserBalanceService } from 'src/user-balance/user-balance.service';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()
 export class AdsService {
   constructor(
     private prismaService: PrismaService,
     private userBalance: UserBalanceService,
+    private storageService: StorageService,
     @InjectQueue('ads') private adsQueue: Queue,
   ) {}
   async addAds(dto: Ads, file: Express.Multer.File) {
@@ -22,17 +24,26 @@ export class AdsService {
       data: { ...dto },
       include: { Payment: true },
     });
-    await this.adsQueue.add('uploadFile', {
-      file,
-      adsId: myAds.id,
+    const uploadData = await this.storageService.uploadFile(file);
+    const data = await this.prismaService.ads.update({
+      data: { url: uploadData },
+      where: { id: myAds.id },
     });
     if (file.mimetype === 'video/mp4') {
-      await this.adsQueue.add('convertVideo', {
-        file,
-        adsId: myAds.id,
-      });
+      await this.adsQueue.add(
+        'convertVideo',
+        {
+          file,
+          adsId: myAds.id,
+        },
+        {
+          removeOnComplete: true,
+          removeOnFail: { count: 100, age: 86400 },
+          attempts: 7,
+        },
+      );
     }
-    return { myAds };
+    return { data };
   }
   async changeAdsStatus(id: string, status: CONTENT_STATUS_ENUM) {
     const data = await this.prismaService.ads.findUnique({

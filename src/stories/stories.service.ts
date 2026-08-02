@@ -11,28 +11,39 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()
 export class StoriesService {
   constructor(
     private prismaService: PrismaService,
+    private storageService: StorageService,
     @InjectQueue('stories') private storiesQueue: Queue,
   ) {}
   async addStory(dto: AddStories, file: Express.Multer.File) {
     const myStory = await this.prismaService.stories.create({
       data: { ...dto },
     });
-    await this.storiesQueue.add('uploadFile', {
-      file,
-      storyId: myStory.id,
+    const uploadData = await this.storageService.uploadFile(file);
+    const data = await this.prismaService.stories.update({
+      data: { url: uploadData },
+      where: { id: myStory.id },
     });
     if (file.mimetype === 'video/mp4') {
-      await this.storiesQueue.add('convertVideo', {
-        file,
-        storyId: myStory.id,
-      });
+      await this.storiesQueue.add(
+        'convertVideo',
+        {
+          file,
+          storyId: myStory.id,
+        },
+        {
+          removeOnComplete: true,
+          removeOnFail: { count: 100, age: 86400 },
+          attempts: 7,
+        },
+      );
     }
-    return { myStory };
+    return { data };
   }
   async updateStoryDetails(id: string, creatorId: string, dto: UpdateStories) {
     await this.isMe(id, creatorId);

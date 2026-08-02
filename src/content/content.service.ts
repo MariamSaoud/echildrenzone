@@ -14,10 +14,12 @@ import {
 } from './dto/content.dto';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { StorageService } from 'src/storage/storage.service';
 @Injectable()
 export class ContentService {
   constructor(
     private prismaService: PrismaService,
+    private storageService: StorageService,
     @InjectQueue('content') private contentQueue: Queue,
   ) {}
   async createContent(dto: CreateContent, file: Express.Multer.File) {
@@ -31,17 +33,26 @@ export class ContentService {
     const myContent = await this.prismaService.content.create({
       data: { ...dto },
     });
-    await this.contentQueue.add('uploadFile', {
-      file,
-      contentId: myContent.id,
+    const uploadData = await this.storageService.uploadFile(file);
+    const data = await this.prismaService.content.update({
+      data: { url: uploadData },
+      where: { id: myContent.id },
     });
     if (file.mimetype === 'video/mp4') {
-      await this.contentQueue.add('convertVideo', {
-        file,
-        contentId: myContent.id,
-      });
+      await this.contentQueue.add(
+        'convertVideo',
+        {
+          file,
+          contentId: myContent.id,
+        },
+        {
+          removeOnComplete: true,
+          removeOnFail: { count: 100, age: 86400 },
+          attempts: 7,
+        },
+      );
     }
-    return { myContent };
+    return { data };
   }
   async updateContent(creatorId: string, id: string, dto: UpdateContent) {
     await this.IsCreator(id, creatorId);
