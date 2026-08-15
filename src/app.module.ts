@@ -27,7 +27,9 @@ import { AdsPaymentModule } from './ads-payment/ads-payment.module';
 import { AdsModule } from './ads/ads.module';
 import { StorageModule } from './storage/storage.module';
 import { VideosModule } from './videos/videos.module';
+import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bullmq';
+import { ScheduledStoriesModule } from './scheduled-stories/scheduled-stories.module';
 @Module({
   imports: [
     PrismaModule,
@@ -70,6 +72,8 @@ import { BullModule } from '@nestjs/bullmq';
         port: 6379,
       },
     }),
+    ScheduleModule.forRoot(),
+    ScheduledStoriesModule,
   ],
   controllers: [],
   providers: [
