@@ -42,7 +42,7 @@ export class ContentService {
       await this.contentQueue.add(
         'convertVideo',
         {
-          file,
+          uploadData,
           contentId: myContent.id,
         },
         {

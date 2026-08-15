@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectMinio } from './storage.decorator';
 import * as Minio from 'minio';
 import { uuidv7 } from 'uuidv7';
+import { Readable } from 'stream';
 @Injectable()
 export class StorageService {
   protected photosBucketName = 'echildrenzonephoto';
@@ -66,5 +67,13 @@ export class StorageService {
     } catch (error) {
       throw new Error(`MinIO Upload Failed: ${error.message}`);
     }
+  }
+  async streamToBuffer(stream: Readable): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      const chunks: any[] = [];
+      stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+      stream.on('error', (err) => reject(err));
+      stream.on('end', () => resolve(Buffer.concat(chunks)));
+    });
   }
 }

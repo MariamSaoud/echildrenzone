@@ -33,7 +33,7 @@ export class StoriesService {
       await this.storiesQueue.add(
         'convertVideo',
         {
-          file,
+          uploadData,
           storyId: myStory.id,
         },
         {

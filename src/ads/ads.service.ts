@@ -33,7 +33,7 @@ export class AdsService {
       await this.adsQueue.add(
         'convertVideo',
         {
-          file,
+          uploadData,
           adsId: myAds.id,
         },
         {

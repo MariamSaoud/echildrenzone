@@ -41,7 +41,9 @@ export class VideosService {
     ffmpeg.setFfprobePath(ffprobeInstaller.path);
   }
 
-  async convertVideo(video: Express.Multer.File) {
+  async convertVideo(
+    video: Express.Multer.File | { buffer: Buffer; mimetype?: string },
+  ) {
     if (video.mimetype !== 'video/mp4') {
       throw new BadRequestException('Must Be Video!');
     }
