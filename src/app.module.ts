@@ -30,6 +30,7 @@ import { VideosModule } from './videos/videos.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduledStoriesModule } from './scheduled-stories/scheduled-stories.module';
+import { UserCategoryScoreModule } from './user-category-score/user-category-score.module';
 @Module({
   imports: [
     PrismaModule,
@@ -74,6 +75,7 @@ import { ScheduledStoriesModule } from './scheduled-stories/scheduled-stories.mo
     }),
     ScheduleModule.forRoot(),
     ScheduledStoriesModule,
+    UserCategoryScoreModule,
   ],
   controllers: [],
   providers: [

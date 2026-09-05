@@ -37,6 +37,7 @@ model User{
   BlockedChannels BlockedChannel[]
   Children  ParentsChildren[]  @relation("child_relation")
   Parents   ParentsChildren[]  @relation("parent_relation")
+  UserCategoryScore UserCategoryScore[]
   @@index([accountId])
 }
 
@@ -98,6 +99,7 @@ model Category {
   Stories   Stories[]
   Content   Content[]
   Playlist  Playlist[]
+  UserCategoryScore UserCategoryScore[]
   @@unique([type,specificType])
 }
 
@@ -305,6 +307,18 @@ model Ads {
   Payment   AdsPayment     @relation(fields: [paymentId], references: [id], onDelete: Cascade)
   contentAge ContentAge    @relation(fields: [contentAgeId],references: [id],onDelete: Cascade)
 }
+model UserCategoryScore {
+  id        String         @id @default(dbgenerated("uuidv7()"))  @db.Uuid() 
+  userId    String         @db.Uuid()
+  categoryId    String         @db.Uuid()
+  categoryScore    Int         @default(0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Category  Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  User      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId,categoryId])
+}
+
 enum ROLE_ENUM {
   CHILD
   PARENT

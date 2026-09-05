@@ -1,19 +1,37 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserBalanceService } from 'src/user-balance/user-balance.service';
+import { UserCategoryScoreService } from 'src/user-category-score/user-category-score.service';
 
 @Injectable()
 export class ReactionService {
+  private readonly reactionPoints = 2;
   constructor(
     private prismaService: PrismaService,
     private userBalance: UserBalanceService,
+    private userCategoryScore: UserCategoryScoreService,
   ) {}
   async toggleReaction(childId: string, contentId: string) {
+    const category = await this.prismaService.content.findUnique({
+      where: { id: contentId },
+    });
+    if (!category) {
+      throw new NotFoundException('Content not found!');
+    }
     try {
       await this.prismaService.reaction.delete({
         where: { childId_contentId: { childId, contentId } },
       });
       await this.userBalance.withdrawBalance(contentId, 'REACTION');
+      await this.userCategoryScore.decrementUserCategoryScore(
+        childId,
+        category.categoryId,
+        this.reactionPoints,
+      );
       return { message: 'Remove Successfully!' };
     } catch (error) {
       if (error.code === 'P2025') {
@@ -21,6 +39,11 @@ export class ReactionService {
           data: { childId, contentId },
         });
         await this.userBalance.depositBalance(contentId, 'REACTION');
+        await this.userCategoryScore.upsertUserCategoryScore(
+          childId,
+          category.categoryId,
+          this.reactionPoints,
+        );
         return { message: 'Add Successfully!' };
       } else {
         throw error;
