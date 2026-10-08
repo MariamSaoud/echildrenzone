@@ -31,6 +31,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduledStoriesModule } from './scheduled-stories/scheduled-stories.module';
 import { UserCategoryScoreModule } from './user-category-score/user-category-score.module';
+import { FeedModule } from './feed/feed.module';
 @Module({
   imports: [
     PrismaModule,
@@ -76,6 +77,7 @@ import { UserCategoryScoreModule } from './user-category-score/user-category-sco
     ScheduleModule.forRoot(),
     ScheduledStoriesModule,
     UserCategoryScoreModule,
+    FeedModule,
   ],
   controllers: [],
   providers: [
