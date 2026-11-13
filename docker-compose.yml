@@ -11,30 +11,65 @@ services:
       - .env
     depends_on:
       - db
+      - redis
+      - minio
+    networks:
+      - app-network
+
   db:
     image: postgres
+    container_name: echildrenzone-db
     restart: always
     environment:
-      POSTGRES_PASSWORD: example
+      POSTGRES_PASSWORD: postgrespassword
       POSTGRES_DB: echildrenzone
     volumes:
-      - postgres-db:/var/lib/postgresql/data
+      - postgres-db:/var/lib/postgresql
+    networks:
+      - app-network
+
   redis:
-    image: redis
+    image: redis:alpine
+    container_name: echildrenzone-redis
+    restart: always
     volumes:
       - redis-volume:/data
+    networks:
+      - app-network
+
   minio:
-    image: minio/minio
+    image: quay.io/minio/minio
     container_name: minio
     ports:
       - "9000:9000"
+      - "9001:9001"
     environment:
       MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    command: server /data
+      MINIO_ROOT_PASSWORD: minioadminpassword
+    command: server /data --console-address ":9001"
     volumes:
       - minio-data:/data
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: echildrenzone-nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - nest_app
+    networks:
+      - app-network
+
 volumes:
-    postgres-db:
-    redis-volume:
-    minio-data:
+  postgres-db:
+  redis-volume:
+  minio-data:
+
+networks:
+  app-network:
+    driver: bridge
