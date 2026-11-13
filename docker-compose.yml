@@ -52,6 +52,19 @@ services:
     networks:
       - app-network
 
+  nginx:
+    image: nginx:alpine
+    container_name: echildrenzone-nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - nest_app
+    networks:
+      - app-network
+
 volumes:
   postgres-db:
   redis-volume:
