@@ -64,11 +64,31 @@ services:
       - nest_app
     networks:
       - app-network
-
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - dozzle_data:/data
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+  uptime-kuma:
+    image: louislam/uptime-kuma:2
+    container_name: uptime-kuma
+    ports:
+      - "3001:3001"
+    volumes:
+      - uptime-kuma_data:/app/data
+    restart: unless-stopped
+    networks:
+      - app-network
 volumes:
   postgres-db:
   redis-volume:
   minio-data:
+  dozzle_data:
+  uptime-kuma_data:
 
 networks:
   app-network:
